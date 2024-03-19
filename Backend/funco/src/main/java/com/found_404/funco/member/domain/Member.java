@@ -4,6 +4,8 @@ import com.found_404.funco.global.entity.BaseEntity;
 import com.found_404.funco.member.domain.type.MemberStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -37,6 +39,7 @@ public class Member extends BaseEntity {
 
     @Comment("회원 유형")
     @Column(nullable = false)
+    @Enumerated(value = EnumType.STRING)
     private MemberStatus status;
 
     @Builder

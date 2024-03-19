@@ -1,8 +1,7 @@
 
 spring:
-  config:
-    activate:
-      on-profile: dev # ??? applcation-{on-profile}.yml ?? ??
+  profiles:
+    active: dev
 
   application:
     name: funco

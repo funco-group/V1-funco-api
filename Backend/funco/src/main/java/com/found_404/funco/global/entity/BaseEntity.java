@@ -2,17 +2,16 @@ package com.found_404.funco.global.entity;
 
 import java.time.LocalDateTime;
 
+import jakarta.persistence.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.MappedSuperclass;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+
+@EntityListeners(value = AuditingEntityListener.class)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @MappedSuperclass
 public class BaseEntity {

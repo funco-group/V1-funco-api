@@ -35,3 +35,6 @@ out/
 
 ### VS Code ###
 .vscode/
+
+### local 환경 변수 ###
+application-local.yml

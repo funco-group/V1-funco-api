@@ -43,4 +43,18 @@ public class HoldingCoin extends BaseEntity {
 		this.volume = volume;
 		this.averagePrice = averagePrice;
 	}
+
+	public void increaseVolume(double volume, Long price) {
+		this.volume += volume;
+		// 평단가 재조정
+	}
+
+	public void decreaseVolume(double volume, Long price) {
+		if (this.volume < volume) {
+			throw new RuntimeException("수량 부족");
+		}
+		this.volume -= volume;
+		// 평단가 재조정
+	}
+
 }

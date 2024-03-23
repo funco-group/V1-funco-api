@@ -38,13 +38,13 @@ public class Notification extends BaseEntity {
 
 	@Comment("읽음여부")
 	@Column(nullable = false)
-	private Boolean read;
+	private Boolean readYn;
 
 	@Builder
-	public Notification(Member member, NotificationType type, String message, Boolean read) {
+	public Notification(Member member, NotificationType type, String message, Boolean readYn) {
 		this.member = member;
 		this.type = type;
 		this.message = message;
-		this.read = read;
+		this.readYn = readYn;
 	}
 }

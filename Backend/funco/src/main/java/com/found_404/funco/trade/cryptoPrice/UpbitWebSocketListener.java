@@ -59,6 +59,7 @@ public class UpbitWebSocketListener extends WebSocketListener {
 
     @Override
     public void onFailure(@NotNull WebSocket webSocket, Throwable t, Response response) {
+        log.error("upbit websocket error! msg:{}, response:{} ", t.getMessage(), response.message());
         t.printStackTrace();
     }
 

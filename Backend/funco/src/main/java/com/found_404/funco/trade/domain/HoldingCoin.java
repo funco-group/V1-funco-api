@@ -1,5 +1,6 @@
 package com.found_404.funco.trade.domain;
 
+import com.found_404.funco.trade.exception.TradeException;
 import org.hibernate.annotations.Comment;
 
 import com.found_404.funco.global.entity.BaseEntity;
@@ -14,6 +15,8 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import static com.found_404.funco.trade.exception.TradeErrorCode.INSUFFICIENT_COINS;
 
 @Entity
 @Getter
@@ -45,16 +48,15 @@ public class HoldingCoin extends BaseEntity {
 	}
 
 	public void increaseVolume(double volume, Long price) {
+		this.averagePrice = (long) (((this.volume * this.averagePrice) + (volume * price)) / (volume + this.volume));
 		this.volume += volume;
-		// 평단가 재조정
 	}
 
-	public void decreaseVolume(double volume, Long price) {
+	public void decreaseVolume(double volume) {
 		if (this.volume < volume) {
-			throw new RuntimeException("수량 부족");
+			throw new TradeException(INSUFFICIENT_COINS);
 		}
 		this.volume -= volume;
-		// 평단가 재조정
 	}
 
 }

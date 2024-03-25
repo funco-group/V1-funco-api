@@ -23,9 +23,6 @@ import java.util.stream.Collectors;
 import static com.found_404.funco.member.exception.MemberErrorCode.NOT_FOUND_MEMBER;
 import static com.found_404.funco.trade.exception.TradeErrorCode.INSUFFICIENT_COINS;
 
-import static com.found_404.funco.member.exception.MemberErrorCode.NOT_FOUND_MEMBER;
-import static com.found_404.funco.trade.exception.TradeErrorCode.INSUFFICIENT_COINS;
-
 @Service
 @RequiredArgsConstructor
 public class TradeService {

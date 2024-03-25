@@ -9,6 +9,8 @@ import com.found_404.funco.trade.domain.Trade;
 import com.found_404.funco.trade.domain.repository.HoldingCoinRepository;
 import com.found_404.funco.trade.domain.repository.TradeRepository;
 import com.found_404.funco.trade.domain.type.TradeType;
+import com.found_404.funco.trade.dto.Ticker;
+import com.found_404.funco.trade.dto.response.HoldingCoinsResponse;
 import com.found_404.funco.trade.dto.response.MarketTradeResponse;
 import com.found_404.funco.trade.exception.TradeException;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +18,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
+import java.util.stream.Collectors;
+
+import static com.found_404.funco.member.exception.MemberErrorCode.NOT_FOUND_MEMBER;
+import static com.found_404.funco.trade.exception.TradeErrorCode.INSUFFICIENT_COINS;
 
 import static com.found_404.funco.member.exception.MemberErrorCode.NOT_FOUND_MEMBER;
 import static com.found_404.funco.trade.exception.TradeErrorCode.INSUFFICIENT_COINS;
@@ -129,6 +135,18 @@ public class TradeService {
 
     private Member getMember(Long memberId) {
         return memberRepository.findById(memberId).orElseThrow(() -> new MemberException(NOT_FOUND_MEMBER));
+    }
+
+    public HoldingCoinsResponse getHoldingCoins(Long memberId) {
+        Member member = getMember(memberId);
+
+        return HoldingCoinsResponse.builder()
+                .holdingCoins(holdingCoinRepository
+                        .findByMember(member)
+                        .stream()
+                        .map(Ticker::getTicker)
+                        .collect(Collectors.toList()))
+                .build();
     }
 
 }

@@ -17,14 +17,14 @@ public class QueryDslMonthlyStatisticsRepositoryImpl implements QueryDslMonthlyS
 	private final JPAQueryFactory jpaQueryFactory;
 
 	@Override
-	public List<MonthlyStatisticsResponse> findMonthlyStatisticsByYear(Integer year) {
+	public List<MonthlyStatisticsResponse> findMonthlyStatisticsByYear(Long memberId, Integer year) {
 		return jpaQueryFactory.select(
 				new QMonthlyStatisticsResponse(monthlyStatistics.date.month(), monthlyStatistics.returnResult,
 					monthlyStatistics.returnRate,
 					monthlyStatistics.accReturnResult, monthlyStatistics.accReturnRate, monthlyStatistics.beginningAsset,
 					monthlyStatistics.endingAsset))
 			.from(monthlyStatistics)
-			.where(monthlyStatistics.date.year().eq(year))
+			.where(monthlyStatistics.member.id.eq(memberId).and(monthlyStatistics.date.year().eq(year)))
 			.orderBy(monthlyStatistics.date.asc())
 			.fetch();
 	}

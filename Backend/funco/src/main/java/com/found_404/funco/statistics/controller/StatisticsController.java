@@ -25,11 +25,13 @@ public class StatisticsController {
 	@GetMapping("/daily")
 	public ResponseEntity<List<DailyStatisticsResponse>> getDailyStatistics(@RequestParam Integer year,
 		@RequestParam Integer month) {
-		return ResponseEntity.status(HttpStatus.OK).body(statisticsService.readDailyStatistics(year, month));
+		Long memberId = 1L;
+		return ResponseEntity.status(HttpStatus.OK).body(statisticsService.readDailyStatistics(memberId, year, month));
 	}
 
 	@GetMapping("/monthly")
 	public ResponseEntity<List<MonthlyStatisticsResponse>> getMonthlyStatistics(@RequestParam Integer year) {
-		return ResponseEntity.status(HttpStatus.OK).body(statisticsService.readMonthlyStatistics(year));
+		Long memberId = 1L;
+		return ResponseEntity.status(HttpStatus.OK).body(statisticsService.readMonthlyStatistics(memberId, year));
 	}
 }

@@ -18,11 +18,11 @@ public class StatisticsService {
 	private final DailyStatisticsRepository dailyStatisticsRepository;
 	private final MonthlyStatisticsRepository monthlyStatisticsRepository;
 
-	public List<DailyStatisticsResponse> readDailyStatistics(Integer year, Integer month) {
-		return dailyStatisticsRepository.findDailyStatisticsByYearAndMonth(year, month);
+	public List<DailyStatisticsResponse> readDailyStatistics(Long memberId, Integer year, Integer month) {
+		return dailyStatisticsRepository.findDailyStatisticsByYearAndMonth(memberId, year, month);
 	}
 
-	public List<MonthlyStatisticsResponse> readMonthlyStatistics(Integer year) {
-		return monthlyStatisticsRepository.findMonthlyStatisticsByYear(year);
+	public List<MonthlyStatisticsResponse> readMonthlyStatistics(Long memberId, Integer year) {
+		return monthlyStatisticsRepository.findMonthlyStatisticsByYear(memberId, year);
 	}
 }

@@ -5,5 +5,5 @@ import java.util.List;
 import com.found_404.funco.statistics.dto.response.DailyStatisticsResponse;
 
 public interface QueryDslDailyStatisticsRepository {
-	List<DailyStatisticsResponse> findDailyStatisticsByYearAndMonth(Integer year, Integer month);
+	List<DailyStatisticsResponse> findDailyStatisticsByYearAndMonth(Long memberId, Integer year, Integer month);
 }

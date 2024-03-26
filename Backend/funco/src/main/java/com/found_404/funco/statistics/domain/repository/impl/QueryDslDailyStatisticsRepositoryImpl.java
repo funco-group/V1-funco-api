@@ -17,13 +17,15 @@ public class QueryDslDailyStatisticsRepositoryImpl implements QueryDslDailyStati
 	private final JPAQueryFactory jpaQueryFactory;
 
 	@Override
-	public List<DailyStatisticsResponse> findDailyStatisticsByYearAndMonth(Integer year, Integer month) {
+	public List<DailyStatisticsResponse> findDailyStatisticsByYearAndMonth(Long memberId, Integer year, Integer month) {
 		return jpaQueryFactory
 			.select(new QDailyStatisticsResponse(dailyStatistics.date, dailyStatistics.returnResult,
 				dailyStatistics.returnRate, dailyStatistics.accReturnResult, dailyStatistics.accReturnRate,
 				dailyStatistics.beginningAsset, dailyStatistics.endingAsset))
 			.from(dailyStatistics)
-			.where(dailyStatistics.date.year().eq(year), dailyStatistics.date.month().eq(month))
+			.where(dailyStatistics.member.id.eq(memberId)
+				.and(dailyStatistics.date.year().eq(year))
+				.and(dailyStatistics.date.month().eq(month)))
 			.orderBy(dailyStatistics.date.asc())
 			.fetch();
 	}

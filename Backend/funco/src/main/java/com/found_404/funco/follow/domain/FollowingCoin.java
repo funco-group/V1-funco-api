@@ -42,4 +42,8 @@ public class FollowingCoin extends BaseEntity {
 		this.volume = volume;
 		this.averagePrice = averagePrice;
 	}
+
+	public void sellFollowingCoin() {
+		this.volume = 0.0;
+	}
 }

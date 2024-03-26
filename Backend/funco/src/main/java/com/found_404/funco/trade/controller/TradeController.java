@@ -1,14 +1,19 @@
 package com.found_404.funco.trade.controller;
 
+import com.found_404.funco.trade.dto.TradeDto;
 import com.found_404.funco.trade.dto.request.MarketBuyingRequest;
 import com.found_404.funco.trade.dto.request.MarketSellingRequest;
+import com.found_404.funco.trade.dto.request.TradeRequest;
 import com.found_404.funco.trade.dto.response.HoldingCoinsResponse;
 import com.found_404.funco.trade.dto.response.MarketTradeResponse;
 import com.found_404.funco.trade.service.TradeService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/v1/trade")
@@ -44,7 +49,13 @@ public class TradeController {
         return ResponseEntity.ok(tradeService.getHoldingCoins(memberId));
     }
 
-    // 특정 체결 코인 거래 내역
+    // 체결 코인 거래 내역, param ticker , follow 여부 필수
+    @GetMapping()
+    public ResponseEntity<List<TradeDto>> getOrders(Pageable pageable, TradeRequest tradeRequest) {
+        final Long memberId = 1L;
+
+        return ResponseEntity.ok(tradeService.getOrders(memberId, tradeRequest.ticker(), tradeRequest.follow(), pageable));
+    }
 
     // 미체결 거래 내역 보기
 

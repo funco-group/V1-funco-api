@@ -10,13 +10,16 @@ import com.found_404.funco.trade.domain.repository.HoldingCoinRepository;
 import com.found_404.funco.trade.domain.repository.TradeRepository;
 import com.found_404.funco.trade.domain.type.TradeType;
 import com.found_404.funco.trade.dto.Ticker;
+import com.found_404.funco.trade.dto.TradeDto;
 import com.found_404.funco.trade.dto.response.HoldingCoinsResponse;
 import com.found_404.funco.trade.dto.response.MarketTradeResponse;
 import com.found_404.funco.trade.exception.TradeException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -144,6 +147,15 @@ public class TradeService {
                         .map(Ticker::getTicker)
                         .collect(Collectors.toList()))
                 .build();
+    }
+
+    public List<TradeDto> getOrders(Long memberId, String ticker, Boolean follow, Pageable pageable) {
+        Member member = getMember(memberId);
+
+        return tradeRepository.findMyTradeHistoryByTicker(member.getId(), follow, ticker, pageable)
+                .stream()
+                .map(TradeDto::fromEntity)
+                .collect(Collectors.toList());
     }
 
 }

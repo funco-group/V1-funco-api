@@ -1,17 +1,21 @@
 package com.found_404.funco.follow.domain;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.hibernate.annotations.Comment;
 
 import com.found_404.funco.global.entity.BaseEntity;
 import com.found_404.funco.member.domain.Member;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -29,6 +33,9 @@ public class Follow extends BaseEntity {
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "follower_id", nullable = false)
 	private Member follower;
+
+	@OneToMany(mappedBy = "follow", cascade = CascadeType.ALL)
+	private List<FollowingCoin> followingCoins = new ArrayList<>();
 
 	@Comment("초기투자금")
 	@Column(nullable = false)
@@ -64,6 +71,14 @@ public class Follow extends BaseEntity {
 		this.returnRate = returnRate;
 		this.settleDate = settleDate;
 		this.settled = settled;
+		this.settlement = settlement;
+	}
+
+	public void settleFollow(Long commission, Double returnRate, LocalDateTime settleDate, Long settlement) {
+		this.commission = commission;
+		this.returnRate = returnRate;
+		this.settleDate = settleDate;
+		this.settled = true;
 		this.settlement = settlement;
 	}
 }

@@ -33,12 +33,12 @@ public class FavoriteCoinService {
 			.build();
 	}
 
-	public void deleteFavoriteCoin(Long memberId, FavoriteCoinRequest favoriteCoinRequest) {
+	public void deleteFavoriteCoin(Long memberId, String ticker) {
 		FavoriteCoinInfo favoriteCoinInfo = readFavoriteCoinInfo(memberId);
 		if (favoriteCoinInfo == null) {
 			return;
 		}
-		favoriteCoinInfo.deleteFavorite(favoriteCoinRequest.ticker());
+		favoriteCoinInfo.deleteFavorite(ticker);
 		updateFavoriteInfo(memberId, favoriteCoinInfo); // redis에 바뀐 정보 업데이트
 	}
 

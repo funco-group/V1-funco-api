@@ -4,6 +4,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -38,12 +39,12 @@ public class FavoriteCoinController {
 		return ResponseEntity.ok(favoriteCoinService.readFavoriteCoin(1L));
 	}
 
-	@DeleteMapping
+	@DeleteMapping("{ticker}")
 	public ResponseEntity<Void> removeFavoriteCoin(
 		// 멤버 추가할 예정
-		@RequestBody FavoriteCoinRequest favoriteCoinRequest
+		@PathVariable String ticker
 	) {
-		favoriteCoinService.deleteFavoriteCoin(1L, favoriteCoinRequest);
+		favoriteCoinService.deleteFavoriteCoin(1L, ticker);
 		return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
 	}
 }

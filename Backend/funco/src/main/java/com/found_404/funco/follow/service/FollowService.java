@@ -44,7 +44,8 @@ public class FollowService {
 
 	private final CryptoPrice cryptoPrice;
 
-	private static final Double FOLLOW_FEE = 0.03;
+	private static final double FOLLOW_FEE = 0.03;
+	private static final int PAGE_SIZE = 2;
 
 	@Transactional
 	public void createFollow(FollowingRequest request, Long memberId) {
@@ -61,13 +62,13 @@ public class FollowService {
 		}
 
 		// 초기 투자금
-		long investment = request.investment();
+		Long investment = request.investment();
 
 		// 팔로워 초기 투자금 차감
 		followerMember.decreaseCash(investment);
 
 		// 부모 팔로워 가용 현금
-		long followingCash = followingMember.getCash();
+		Long followingCash = followingMember.getCash();
 
 		// 부모의 보유 코인들
 		List<HoldingCoin> holdingCoins = holdingCoinRepository.findHoldingCoinByMember(followingMember);
@@ -84,9 +85,8 @@ public class FollowService {
 					HoldingCoin::getTicker,
 					holdingCoin -> (long)(followingCryptoPriceMap.get(holdingCoin.getTicker())
 						* holdingCoin.getVolume())));
-
 		// 총 보유 자산
-		long asset = followingCryptoToAssetMap.values().stream()
+		Long asset = followingCryptoToAssetMap.values().stream()
 			.mapToLong(Long::longValue)
 			.sum() + followingCash;
 
@@ -96,7 +96,7 @@ public class FollowService {
 				entry -> (double)Math.round((double)entry.getValue() / asset * 100) / 100));
 
 		// 가용 현금
-		long followerCash = (long)(investment * ((double)Math.round((double)followingCash / asset * 100) / 100));
+		Long followerCash = (long)(investment * ((double)Math.round((double)followingCash / asset * 100) / 100));
 
 		// 팔로우 생성
 		Follow follow = Follow.builder()
@@ -104,7 +104,7 @@ public class FollowService {
 			.follower(followerMember)
 			.investment(investment)
 			.cash(followerCash)
-			.settled(false)
+			.settled(Boolean.FALSE)
 			.build();
 
 		// 팔로잉 코인, 거래 내역 생성
@@ -122,8 +122,7 @@ public class FollowService {
 					.volume((investment * entry.getValue()) / followingCryptoPriceMap.get(entry.getKey()))
 					.orderCash((long)(investment * entry.getValue()))
 					.price(followingCryptoPriceMap.get(entry.getKey()))
-					.concluded(true)
-					.status(true)
+					.status(Boolean.TRUE)
 					.build()));
 
 		// 엔티티 insert
@@ -160,8 +159,7 @@ public class FollowService {
 				.volume(followingCoin.getVolume())
 				.orderCash((long)(followingCoin.getVolume() * followingCryptoPriceMap.get(followingCoin.getTicker())))
 				.price(followingCryptoPriceMap.get(followingCoin.getTicker()))
-				.concluded(true)
-				.status(true)
+				.status(Boolean.TRUE)
 				.build())
 			.toList();
 
@@ -209,4 +207,5 @@ public class FollowService {
 	private Member findMemberById(Long memberId) {
 		return memberRepository.findById(memberId).orElseThrow(() -> new MemberException(NOT_FOUND_MEMBER));
 	}
+
 }

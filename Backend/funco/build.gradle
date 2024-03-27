@@ -57,7 +57,7 @@ tasks.named('test') {
     useJUnitPlatform()
 }
 
-def querydslSrcDir = 'src/main/generated'
+def querydslSrcDir = layout.buildDirectory.dir("generated/querydsl").get().asFile
 clean {
     delete file(querydslSrcDir)
 }

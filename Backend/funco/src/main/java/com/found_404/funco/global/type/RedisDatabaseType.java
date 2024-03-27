@@ -1,6 +1,6 @@
 package com.found_404.funco.global.type;
 
-public enum RedisType {
+public enum RedisDatabaseType {
 	TOKEN,
 	RANKING,
 	FAVORITE_COIN

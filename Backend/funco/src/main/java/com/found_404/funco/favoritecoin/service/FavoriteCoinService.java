@@ -16,7 +16,7 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class FavoriteCoinService {
-	private final RedisTemplate<Long, Object> favoriteRedisTemplate;
+	private final RedisTemplate<Long, Object> favoriteCoinRedisTemplate;
 
 	public void createFavoriteCoin(Long memberId, FavoriteCoinRequest favoriteCoinRequest) {
 		FavoriteCoinInfo favoriteCoinInfo = readFavoriteCoinInfo(memberId);
@@ -43,7 +43,7 @@ public class FavoriteCoinService {
 	}
 
 	private FavoriteCoinInfo readFavoriteCoinInfo(Long memberId) {
-		FavoriteCoinInfo favoriteCoinInfo = (FavoriteCoinInfo)favoriteRedisTemplate.opsForValue().get(memberId);
+		FavoriteCoinInfo favoriteCoinInfo = (FavoriteCoinInfo)favoriteCoinRedisTemplate.opsForValue().get(memberId);
 		if (favoriteCoinInfo == null) {
 			favoriteCoinInfo = FavoriteCoinInfo.builder().build();
 		}
@@ -51,6 +51,6 @@ public class FavoriteCoinService {
 	}
 
 	private void updateFavoriteInfo(Long memberId, FavoriteCoinInfo favoriteCoinInfo) {
-		favoriteRedisTemplate.opsForValue().set(memberId, favoriteCoinInfo);
+		favoriteCoinRedisTemplate.opsForValue().set(memberId, favoriteCoinInfo);
 	}
 }

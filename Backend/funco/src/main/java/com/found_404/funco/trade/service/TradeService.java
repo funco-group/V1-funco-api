@@ -5,10 +5,13 @@ import com.found_404.funco.member.domain.repository.MemberRepository;
 import com.found_404.funco.member.exception.MemberException;
 import com.found_404.funco.trade.cryptoPrice.CryptoPrice;
 import com.found_404.funco.trade.domain.HoldingCoin;
+import com.found_404.funco.trade.domain.OpenTrade;
 import com.found_404.funco.trade.domain.Trade;
 import com.found_404.funco.trade.domain.repository.HoldingCoinRepository;
+import com.found_404.funco.trade.domain.repository.OpenTradeRepository;
 import com.found_404.funco.trade.domain.repository.TradeRepository;
 import com.found_404.funco.trade.domain.type.TradeType;
+import com.found_404.funco.trade.dto.OpenTradeDto;
 import com.found_404.funco.trade.dto.Ticker;
 import com.found_404.funco.trade.dto.TradeDto;
 import com.found_404.funco.trade.dto.response.HoldingCoinsResponse;
@@ -24,7 +27,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.found_404.funco.member.exception.MemberErrorCode.NOT_FOUND_MEMBER;
-import static com.found_404.funco.trade.exception.TradeErrorCode.INSUFFICIENT_COINS;
+import static com.found_404.funco.trade.exception.TradeErrorCode.*;
 
 @Service
 @RequiredArgsConstructor
@@ -33,6 +36,7 @@ public class TradeService {
     private final TradeRepository tradeRepository;
     private final MemberRepository memberRepository;
     private final HoldingCoinRepository holdingCoinRepository;
+    private final OpenTradeRepository openTradeRepository;
 
     private static final Double TRADE_FEE = 0.05;
     private final CryptoPrice cryptoPrice;
@@ -74,7 +78,6 @@ public class TradeService {
         Trade trade = Trade.builder()
                 .ticker(ticker)
                 .tradeType(TradeType.BUY)
-                .concluded(true)
                 .member(member)
                 .orderCash(orderCash)
                 .price(currentPrice)
@@ -114,7 +117,6 @@ public class TradeService {
         Trade trade = Trade.builder()
                 .ticker(ticker)
                 .tradeType(TradeType.SELL)
-                .concluded(true)
                 .member(member)
                 .orderCash(orderCash)
                 .price(currentPrice)
@@ -158,4 +160,27 @@ public class TradeService {
                 .collect(Collectors.toList());
     }
 
+    public List<OpenTradeDto> getOpenOrders(Long memberId, Boolean follow, String ticker, Pageable pageable) {
+        Member member = getMember(memberId);
+
+        // 멤버 아이디, 코인 유무, id 역순,
+        return openTradeRepository.findMyOpenTrade(member.getId(), follow, ticker, pageable)
+                .stream()
+                .map(OpenTradeDto::fromEntity)
+                .collect(Collectors.toList());
+
+    }
+
+    public void deleteOpenTrade(Long memberId, Long openTradeId) {
+        Member member = getMember(memberId);
+
+        OpenTrade openTrade = openTradeRepository.findById(openTradeId)
+                .orElseThrow(() -> new TradeException(NOT_FOUND_TRADE));
+
+        if (!openTrade.getMember().getId().equals(member.getId())) {
+            throw new TradeException(TRADE_UNAUTHORIZED);
+        }
+
+        openTradeRepository.delete(openTrade);
+    }
 }

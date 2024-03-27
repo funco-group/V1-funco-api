@@ -26,7 +26,7 @@ public record TradeDto(
                 .volume(trade.getVolume())
                 .orderCash(trade.getOrderCash())
                 .tradeType(trade.getTradeType())
-                .tradeDate(trade.getUpdatedAt())
+                .tradeDate(trade.getCreatedAt())
                 .build();
     }
 }

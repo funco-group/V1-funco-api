@@ -9,3 +9,14 @@ INSERT INTO holding_coin (member_id, ticker, volume, average_price) VALUES
 (1, 'KRW-BTC', 2.5, 95000000),
 (1, 'KRW-ETH', 10.0, 3000000),
 (1, 'KRW-XRP', 500.0, 1500);
+
+
+-- 체결 거래 내역
+INSERT INTO trade (member_id, ticker, trade_type, volume, order_cash, price, status)
+VALUES (1, 'KRW-BTC', 'BUY', 0.08, 70000000, 500000, false),
+       (1, 'KRW-ETH', 'SELL', 1.2, 8300000, 1000000, false);
+
+-- 미체결 거래 내역
+INSERT INTO open_trade (member_id, ticker, trade_type, volume, order_cash, price, status)
+VALUES (1, 'KRW-BTC', 'BUY', 0.08, 80000000, 700000, false),
+       (1, 'KRW-ETH', 'SELL', 1.2, 9110000, 1400000, false);

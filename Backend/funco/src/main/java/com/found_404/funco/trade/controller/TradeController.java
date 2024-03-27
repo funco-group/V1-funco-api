@@ -1,5 +1,6 @@
 package com.found_404.funco.trade.controller;
 
+import com.found_404.funco.trade.dto.OpenTradeDto;
 import com.found_404.funco.trade.dto.TradeDto;
 import com.found_404.funco.trade.dto.request.MarketBuyingRequest;
 import com.found_404.funco.trade.dto.request.MarketSellingRequest;
@@ -58,7 +59,20 @@ public class TradeController {
     }
 
     // 미체결 거래 내역 보기
+    @GetMapping("/open-orders")
+    public ResponseEntity<List<OpenTradeDto>> getOpenOrders(Pageable pageable, TradeRequest tradeRequest) {
+        final Long memberId = 1L;
+
+        return ResponseEntity.ok(tradeService.getOpenOrders(memberId, tradeRequest.follow(), tradeRequest.ticker(), pageable));
+    }
 
     // 미체결 거래 취소
+    @DeleteMapping("/open-orders/{id}")
+    public ResponseEntity<?> getOpenOrders(@PathVariable Long id) {
+        final Long memberId = 1L;
+
+        tradeService.deleteOpenTrade(memberId, id);
+        return ResponseEntity.ok().build();
+    }
 
 }

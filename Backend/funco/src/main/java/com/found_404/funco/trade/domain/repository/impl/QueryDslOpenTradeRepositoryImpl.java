@@ -1,7 +1,7 @@
 package com.found_404.funco.trade.domain.repository.impl;
 
-import com.found_404.funco.trade.domain.Trade;
-import com.found_404.funco.trade.domain.repository.QueryDslTradeRepository;
+import com.found_404.funco.trade.domain.OpenTrade;
+import com.found_404.funco.trade.domain.repository.QueryDslOpenTradeRepository;
 import com.querydsl.core.types.Predicate;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -11,32 +11,32 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Objects;
 
-import static com.found_404.funco.trade.domain.QTrade.trade;
+import static com.found_404.funco.trade.domain.QOpenTrade.openTrade;
 
 @RequiredArgsConstructor
 @Repository
-public class QueryDslTradeRepositoryImpl implements QueryDslTradeRepository {
+public class QueryDslOpenTradeRepositoryImpl implements QueryDslOpenTradeRepository {
     private final JPAQueryFactory jpaQueryFactory;
 
-
     @Override
-    public List<Trade> findMyTradeHistoryByTicker(Long memberId, Boolean status, String ticker, Pageable pageable) {
+    public List<OpenTrade> findMyOpenTrade(Long memberId, Boolean status, String ticker, Pageable pageable) {
         return jpaQueryFactory
-                .selectFrom(trade)
-                .where(trade.member.id.eq(memberId),
+                .selectFrom(openTrade)
+                .where(openTrade.member.id.eq(memberId),
                         filterStatus(status),
                         filterTicker(ticker))
-                .orderBy(trade.updatedAt.desc())
+                .orderBy(openTrade.id.desc())
                 .limit(pageable.getPageSize())
                 .offset(pageable.getOffset())
                 .fetch();
     }
 
     private Predicate filterTicker(String ticker) {
-        return Objects.nonNull(ticker) ? trade.ticker.eq(ticker) : null;
+        return Objects.nonNull(ticker) ? openTrade.ticker.eq(ticker) : null;
     }
 
     private Predicate filterStatus(Boolean status) {
-        return Objects.nonNull(status) ? trade.status.eq(status) : null;
+        return Objects.nonNull(status) ? openTrade.status.eq(status) : null;
     }
+
 }

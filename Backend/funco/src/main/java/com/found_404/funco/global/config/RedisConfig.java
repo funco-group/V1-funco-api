@@ -1,6 +1,6 @@
 package com.found_404.funco.global.config;
 
-import static com.found_404.funco.global.type.RedisType.*;
+import static com.found_404.funco.global.type.RedisDatabaseType.*;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -19,6 +19,7 @@ import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 import com.found_404.funco.favoritecoin.dto.FavoriteCoinInfo;
+import com.found_404.funco.rank.dto.response.RankResponse;
 
 @Configuration
 @EnableTransactionManagement
@@ -70,6 +71,24 @@ public class RedisConfig {
 		// Value 직렬화 설정
 		Jackson2JsonRedisSerializer<FavoriteCoinInfo> jackson2JsonRedisSerializer =
 			new Jackson2JsonRedisSerializer<>(objectMapper, FavoriteCoinInfo.class);
+		redisTemplate.setValueSerializer(jackson2JsonRedisSerializer);
+		return redisTemplate;
+	}
+
+	// 랭킹 zset 템플릿
+	@Bean
+	public RedisTemplate<String, Object> rankZSetRedisTemplate() {
+		RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
+		redisTemplate.setConnectionFactory(createLettuceConnectionFactory(RANKING.ordinal()));
+		redisTemplate.setKeySerializer(new StringRedisSerializer());
+		// Value 직렬화를 위한 ObjectMapper 설정
+		ObjectMapper objectMapper = new ObjectMapper();
+		objectMapper.registerModule(new JavaTimeModule());
+		objectMapper.registerModule(new Jdk8Module());
+		objectMapper.registerModule(new ParameterNamesModule());
+		// Value 직렬화 설정
+		Jackson2JsonRedisSerializer<RankResponse> jackson2JsonRedisSerializer =
+			new Jackson2JsonRedisSerializer<>(objectMapper, RankResponse.class);
 		redisTemplate.setValueSerializer(jackson2JsonRedisSerializer);
 		return redisTemplate;
 	}

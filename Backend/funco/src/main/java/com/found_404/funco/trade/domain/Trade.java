@@ -18,6 +18,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -47,9 +49,13 @@ public class Trade extends BaseEntity {
 	@Comment("팔로우 여부")
 	private Boolean status;
 
+	@Comment("거래 시간")
+	private LocalDateTime tradedAt;
+
 	@Builder
 	public Trade(Member member, String ticker, TradeType tradeType, Double volume, Long orderCash, Long price,
-				 Boolean status) {
+				 Boolean status, LocalDateTime tradedAt) {
+
 		this.member = member;
 		this.ticker = ticker;
 		this.tradeType = tradeType;
@@ -57,5 +63,6 @@ public class Trade extends BaseEntity {
 		this.orderCash = orderCash;
 		this.price = price;
 		this.status = status;
+		this.tradedAt = tradedAt;
 	}
 }

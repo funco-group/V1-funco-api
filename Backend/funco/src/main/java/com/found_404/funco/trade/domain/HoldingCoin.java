@@ -39,6 +39,8 @@ public class HoldingCoin extends BaseEntity {
 	@Column(nullable = false)
 	private Long averagePrice;
 
+	private static final Double COMMISSION = 0.05;
+
 	@Builder
 	public HoldingCoin(Member member, String ticker, Double volume, Long averagePrice) {
 		this.member = member;
@@ -49,11 +51,11 @@ public class HoldingCoin extends BaseEntity {
 
 	public void increaseVolume(double volume, Long price) {
 		this.averagePrice = (long) (((this.volume * this.averagePrice) + (volume * price)) / (volume + this.volume));
-		this.volume += volume;
+		this.volume += getVolumeWithoutCommission(volume);
 	}
 
 	public void increaseVolume(double volume) {
-		this.volume += volume;
+		this.volume += getVolumeWithoutCommission(volume);
 	}
 
 	public void decreaseVolume(double volume) {
@@ -61,6 +63,14 @@ public class HoldingCoin extends BaseEntity {
 			throw new TradeException(INSUFFICIENT_COINS);
 		}
 		this.volume -= volume;
+	}
+
+	public double getVolumeWithoutCommission(double volume) {
+		return volume - (volume * COMMISSION);
+	}
+
+	public void recoverVolume(double volume) {
+		this.volume += volume;
 	}
 
 }

@@ -42,6 +42,8 @@ public class Member extends BaseEntity {
     @Enumerated(value = EnumType.STRING)
     private MemberStatus status;
 
+    private static final Double COMMISSION = 0.05;
+
     @Builder
     public Member(String oauthId, String nickname, String profileUrl, String introduction,
         Long cash,
@@ -58,10 +60,18 @@ public class Member extends BaseEntity {
         if (this.cash < orderCash) {
             throw new RuntimeException("잔액이 부족합니다.");  // member domain에서 custom exception 추가
         }
-        this.cash -= orderCash;
+        this.cash -= getCashWithCommission(orderCash);
     }
 
     public void increaseCash(long orderCash) {
-        this.cash += orderCash;
+        this.cash += getCashWithCommission(orderCash);
+    }
+
+    public long getCashWithCommission(long orderCash) {
+        return orderCash - (long) (orderCash * COMMISSION);
+    }
+
+    public void recoverCash(long cash) {
+        this.cash += cash;
     }
 }

@@ -1,88 +1,58 @@
 package com.found_404.funco.trade.cryptoPrice;
 
-import com.found_404.funco.trade.exception.TradeErrorCode;
+import com.found_404.funco.global.util.HttpClientUtil;
+import com.found_404.funco.trade.cryptoPrice.jsonObject.CryptoJson;
+import com.found_404.funco.trade.cryptoPrice.jsonObject.Format;
+import com.found_404.funco.trade.cryptoPrice.jsonObject.Ticket;
+import com.found_404.funco.trade.cryptoPrice.jsonObject.TypeCodes;
+import com.found_404.funco.trade.domain.type.TradeType;
 import com.found_404.funco.trade.exception.TradeException;
-import com.google.gson.Gson;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
 import java.util.*;
 
 import static com.found_404.funco.trade.exception.TradeErrorCode.PRICE_CONNECTION_FAIL;
 
 @Component
 @Slf4j
-@RequiredArgsConstructor
 public class UpbitCryptoPrice implements CryptoPrice {
-    private static final String TICKER_URL = "https://api.upbit.com/v1/market/all";
     private static final String WEBSOCKET_URL = "wss://api.upbit.com/websocket/v1";
     private static final String PRICE_API_URL = "https://api.upbit.com/v1/ticker?markets=";
     // 설정으로 뺄 예정
 
     private final Set<String> markets = new HashSet<>();
-    private final Gson gson;
-    private final OkHttpClient httpClient;
     private final UpbitWebSocketListener listener;
+    private final HttpClientUtil httpClientUtil;
     private WebSocket webSocket;
 
     @Autowired
-    public UpbitCryptoPrice(UpbitWebSocketListener upbitWebSocketListener, OkHttpClient okHttpClient, Gson gson) {
-        this.listener = upbitWebSocketListener;
-        this.httpClient = okHttpClient;
-        this.gson = gson;
+    public UpbitCryptoPrice(UpbitWebSocketListener listener, HttpClientUtil httpClientUtil) {
+        this.listener = listener;
+        this.httpClientUtil = httpClientUtil;
 
         connectWebSocket();
     }
 
     private void connectWebSocket() {
         Request request = new Request.Builder().url(WEBSOCKET_URL).build();
-        this.webSocket = httpClient.newWebSocket(request, listener);
-    }
-
-    private String getApiResponse(String url) {
-        Request request = new Request.Builder()
-                .url(url)
-                .build();
-
-        try (Response response = httpClient.newCall(request).execute()) {
-            return Objects.isNull(response.body()) ? null : response.body().string();
-        } catch (IOException e) {
-            log.error("[Error] price get failed , msg: {}", e.getMessage());
-            throw new TradeException(PRICE_CONNECTION_FAIL);
-        }
-    }
-
-    @Getter
-    @ToString
-    private static class CryptoJson {
-        private String market;
-        private Long trade_price;
+        this.webSocket = httpClientUtil.getWebSocket(request, listener);
     }
 
     @Override
     public Map<String, Long> getTickerPriceMap(List<String> tickers) {
-        CryptoJson[] cryptoJson = gson.fromJson(getApiResponse(getUrlWithParameters(tickers)), CryptoJson[].class);
+        String apiResponse = httpClientUtil.getApiResponse(getUrlWithParameters(tickers));
+        if (Objects.isNull(apiResponse)) {
+            throw new TradeException(PRICE_CONNECTION_FAIL);
+        }
+        CryptoJson[] cryptoJsons = httpClientUtil.parseJsonToClass(apiResponse, CryptoJson[].class)
+                .orElseThrow(() -> new TradeException(PRICE_CONNECTION_FAIL));
 
         Map<String, Long> tickerPriceMap = new HashMap<>();
-        Arrays.stream(cryptoJson).forEach(crypto -> tickerPriceMap.put(crypto.getMarket(), crypto.getTrade_price()));
+        Arrays.stream(cryptoJsons).forEach(crypto -> tickerPriceMap.put(crypto.getMarket(), crypto.getTradePrice()));
         return tickerPriceMap;
-    }
-
-    private String getUrlWithParameters(List<String> tickers) {
-        StringBuilder stringBuilder = new StringBuilder();
-        for (int i = 1; i < tickers.size(); i++) {
-            stringBuilder.append(tickers.get(i)).append(',');
-        }
-        stringBuilder.append(tickers.get(0));
-
-        System.out.println(PRICE_API_URL + stringBuilder);
-        return PRICE_API_URL + stringBuilder;
     }
 
     @Override
@@ -93,30 +63,51 @@ public class UpbitCryptoPrice implements CryptoPrice {
         }
 
         // 없을 시 api 요청
-        try {
-            CryptoJson[] cryptoJson = gson.fromJson(getApiResponse(getUrlWithParameters(List.of(ticker))), CryptoJson[].class);
-            System.out.println(Arrays.toString(cryptoJson));
-            return cryptoJson[0].trade_price;
-        } catch (Exception e) {
-            log.error("[Error] price get failed , msg: {}", e.getMessage());
+        String apiResponse = httpClientUtil.getApiResponse(getUrlWithParameters(List.of(ticker)));
+        if (Objects.isNull(apiResponse)) {
+            throw new TradeException(PRICE_CONNECTION_FAIL);
         }
-        throw new TradeException(PRICE_CONNECTION_FAIL);
+
+        CryptoJson[] cryptoJsons = httpClientUtil.parseJsonToClass(apiResponse, CryptoJson[].class)
+                .orElseThrow(() -> new TradeException(PRICE_CONNECTION_FAIL));
+        return cryptoJsons[0].getTradePrice();
     }
 
-    @Override
-    public void addTicker(String ticker) {
-        markets.add(ticker);
-        updateListenerMarkets();
+    private void addTicker(String ticker) {
+        if (!markets.contains(ticker)) {
+            markets.add(ticker);
+            updateListenerMarkets();
+        }
     }
 
     @Override
     public void removeTicker(String ticker) {
-        markets.remove(ticker);
-        updateListenerMarkets();
+        if (markets.contains(ticker)) {
+            markets.remove(ticker);
+            updateListenerMarkets();
+        }
+    }
+
+    // 감지될 예약 거래 등록
+    @Override
+    public void addTrade(String ticker, Long id, TradeType tradeType, Long price) {
+        addTicker(ticker);
+
+        listener.addTrade(tradeType, ticker, id, price);
+    }
+
+    private String getUrlWithParameters(List<String> tickers) {
+        StringBuilder stringBuilder = new StringBuilder();
+        for (int i = 1; i < tickers.size(); i++) {
+            stringBuilder.append(tickers.get(i)).append(',');
+        }
+        stringBuilder.append(tickers.get(0));
+
+        return PRICE_API_URL + stringBuilder;
     }
 
     private void updateListenerMarkets() {
-        String message = gson.toJson(List.of(new Ticket(),
+        String message = httpClientUtil.toJson(List.of(new Ticket(),
                 new TypeCodes(markets.stream().toList()),
                 new Format()));
 
@@ -124,31 +115,4 @@ public class UpbitCryptoPrice implements CryptoPrice {
         webSocket.send(message);
     }
 
-
-
-    private static class Ticket {
-        private final String ticket = UUID.randomUUID().toString();
-    }
-
-    private static class TypeCodes {
-        private final String type = "trade";
-        private final List<String> codes; // market
-
-        TypeCodes(List<String> codes) {
-            this.codes = codes;
-        }
-    }
-
-
-    private static class Format {
-        private final String format;
-
-        Format() {
-            this.format = "DEFAULT";
-        }
-
-        Format(String format) {
-            this.format = format;
-        }
-    }
 }

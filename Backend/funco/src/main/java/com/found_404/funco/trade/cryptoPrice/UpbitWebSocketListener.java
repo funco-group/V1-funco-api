@@ -1,8 +1,12 @@
 package com.found_404.funco.trade.cryptoPrice;
 
-import com.google.gson.Gson;
-import lombok.Getter;
-import lombok.ToString;
+import com.found_404.funco.global.util.HttpClientUtil;
+import com.found_404.funco.trade.cryptoPrice.jsonObject.CryptoJson;
+import com.found_404.funco.trade.domain.type.TradeType;
+import com.found_404.funco.trade.exception.TradeException;
+import com.found_404.funco.trade.service.OpenTradeService;
+import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.Response;
 import okhttp3.WebSocket;
@@ -12,28 +16,38 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
-@Component
+import static com.found_404.funco.trade.exception.TradeErrorCode.PRICE_CONNECTION_FAIL;
+
 @Slf4j
+@RequiredArgsConstructor
+@Component
 public class UpbitWebSocketListener extends WebSocketListener {
-    private final Map<String, Long> cryptoPrices;
+    private final HttpClientUtil httpClientUtil;
+    private final OpenTradeService openTradeService;
 
-    public UpbitWebSocketListener() {
-        this.cryptoPrices = new HashMap<>();
+    private final Map<String, Long> cryptoPrices = new HashMap<>();
+    private final ConcurrentHashMap<String, PriorityQueue<ProcessingTrade>> buyTrades = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, PriorityQueue<ProcessingTrade>> sellTrades = new ConcurrentHashMap<>();
+
+
+    @AllArgsConstructor
+    static class ProcessingTrade {
+        Long id;
+        Long price;
     }
 
-    @Getter
-    @ToString
-    private static class CryptoJson {
-        private String code;
-        private Long trade_price;
-    }
+    public void addTrade(TradeType tradeType, String ticker, Long id, Long price) {
+        buyTrades.putIfAbsent(ticker, new PriorityQueue<>((t1, t2) -> Long.compare(t1.price, t2.price))); // 최소힙
+        sellTrades.putIfAbsent(ticker, new PriorityQueue<>((t1, t2) -> Long.compare(t2.price, t1.price))); // 최대힙
 
-    private static CryptoJson getCryptoJson(String json) {
-        Gson gson = new Gson();
-        return gson.fromJson(json, CryptoJson.class);
+        if (tradeType.equals(TradeType.BUY)) {
+            buyTrades.get(ticker).add(new ProcessingTrade(id, price));
+        } else {
+            sellTrades.get(ticker).add(new ProcessingTrade(id, price));
+        }
     }
 
     public long getCryptoPrice(String ticker) {
@@ -42,7 +56,7 @@ public class UpbitWebSocketListener extends WebSocketListener {
 
     @Override
     public void onOpen(@NotNull WebSocket webSocket, Response response) {
-        log.info("upbit websocket opend [response: {}]", response.body());
+        log.info("upbit websocket opened [response: {}]", response.body());
     }
 
     /*
@@ -50,17 +64,56 @@ public class UpbitWebSocketListener extends WebSocketListener {
     * */
     @Override
     public void onMessage(@NotNull WebSocket webSocket, ByteString bytes) {
-        String json = bytes.string(StandardCharsets.UTF_8);
-        CryptoJson cryptoJson = getCryptoJson(json);
-        System.out.println(cryptoJson);
-        cryptoPrices.put(cryptoJson.getCode(), cryptoJson.getTrade_price());
+        String response = bytes.string(StandardCharsets.UTF_8);
+        CryptoJson cryptoJson = httpClientUtil.parseJsonToClass(response, CryptoJson.class)
+                .orElseThrow(() -> new TradeException(PRICE_CONNECTION_FAIL));
+
+        System.out.println("websocket receive => coin : "+ cryptoJson.getCode() + " price : " + cryptoJson.getTradePrice());
+
+        priceUpdate(cryptoJson.getCode(), cryptoJson.getTradePrice());
+    }
+
+    private void priceUpdate(String code, Long tradePrice) {
+        if (tradePrice.equals(cryptoPrices.getOrDefault(code, -1L))) {
+            return; // 가격이 같으면 업데이트 x
+        }
+        cryptoPrices.put(code, tradePrice);
+
+        System.out.println("가격 업데이트됨!" + code + " ," + tradePrice);
+
+        processTrade(code, tradePrice);
+    }
+
+    public void processTrade(String code, Long tradePrice) {
+        List<Long> concludingTradeIds = new ArrayList<>();
+
+        PriorityQueue<ProcessingTrade> buyQueue = buyTrades.get(code);
+        System.out.println("buy queue -> "+ buyTrades.get(code).size());
+
+        while (!buyQueue.isEmpty() && buyQueue.peek().price >= tradePrice) {
+            concludingTradeIds.add(buyQueue.poll().id);
+        }
+
+        PriorityQueue<ProcessingTrade> sellQueue = sellTrades.get(code);
+        System.out.println("sell queue -> "+ sellTrades.get(code).size());
+
+        while (!sellQueue.isEmpty() && sellQueue.peek().price <= tradePrice) {
+            concludingTradeIds.add(sellQueue.poll().id);
+        }
+
+        System.out.println("뽑은 처리할 거래 : " + concludingTradeIds);
+
+        // 거래 처리
+        if (!concludingTradeIds.isEmpty()) {
+            int sizeSum = buyTrades.get(code).size() + sellTrades.get(code).size();
+            openTradeService.processTrade(concludingTradeIds, code, sizeSum <= 0);
+        }
     }
 
 
     @Override
     public void onFailure(@NotNull WebSocket webSocket, Throwable t, Response response) {
-        log.error("upbit websocket error! msg:{}, response:{} ", t.getMessage(), response.message());
-        t.printStackTrace();
+        log.error("upbit websocket error! msg:{}, response:{} ", t.getMessage(), response == null ? "null" : response.message());
     }
 
     @Override

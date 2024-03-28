@@ -2,9 +2,7 @@ package com.found_404.funco.trade.controller;
 
 import com.found_404.funco.trade.dto.OpenTradeDto;
 import com.found_404.funco.trade.dto.TradeDto;
-import com.found_404.funco.trade.dto.request.MarketBuyingRequest;
-import com.found_404.funco.trade.dto.request.MarketSellingRequest;
-import com.found_404.funco.trade.dto.request.TradeRequest;
+import com.found_404.funco.trade.dto.request.*;
 import com.found_404.funco.trade.dto.response.HoldingCoinsResponse;
 import com.found_404.funco.trade.dto.response.MarketTradeResponse;
 import com.found_404.funco.trade.service.TradeService;
@@ -39,8 +37,22 @@ public class TradeController {
     }
 
     // 지정가 매수
+    @PostMapping("/limit-buying")
+    public ResponseEntity<?> limitBuying(@RequestBody @Valid LimitBuyingRequest request) {
+        final long memberId = 1L;
+
+        tradeService.limitBuying(memberId, request.ticker(), request.price(), request.volume());
+        return ResponseEntity.ok().build();
+    }
 
     // 지정가 매도
+    @PostMapping("/limit-selling")
+    public ResponseEntity<?> limitSelling(@RequestBody @Valid LimitSellingRequest request) {
+        final long memberId = 1L;
+
+        tradeService.limitSelling(memberId, request.ticker(), request.price(), request.volume());
+        return ResponseEntity.ok().build();
+    }
 
     // 보유 중인 코인 조회
     @GetMapping("/crypto/holding")

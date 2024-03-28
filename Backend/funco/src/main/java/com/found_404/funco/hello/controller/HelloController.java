@@ -17,7 +17,7 @@ import com.found_404.funco.hello.service.HelloService;
 
 import lombok.RequiredArgsConstructor;
 
-@RequestMapping("/hello")
+@RequestMapping("/api/hello")
 @RequiredArgsConstructor
 @RestController
 public class HelloController {

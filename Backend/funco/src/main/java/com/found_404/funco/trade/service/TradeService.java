@@ -1,5 +1,6 @@
 package com.found_404.funco.trade.service;
 
+import com.found_404.funco.follow.service.FollowTradeService;
 import com.found_404.funco.member.domain.Member;
 import com.found_404.funco.member.domain.repository.MemberRepository;
 import com.found_404.funco.member.exception.MemberException;
@@ -39,6 +40,7 @@ public class TradeService {
     private final OpenTradeRepository openTradeRepository;
 
     private final CryptoPrice cryptoPrice;
+    private final FollowTradeService followTradeService;
 
 
     private long getPriceByTicker(String ticker) {
@@ -85,7 +87,8 @@ public class TradeService {
 
         tradeRepository.save(trade);
 
-        // 팔로우 구매 처리 필요 *
+        // 팔로우 연동
+        followTradeService.followTrade(trade);
 
         return MarketTradeResponse.builder()
                 .ticker(trade.getTicker())
@@ -124,7 +127,8 @@ public class TradeService {
 
         tradeRepository.save(trade);
 
-        // 팔로우 매도 로직 필요
+        // 팔로우 연동
+        followTradeService.followTrade(trade);
 
         return MarketTradeResponse.builder()
                 .ticker(trade.getTicker())

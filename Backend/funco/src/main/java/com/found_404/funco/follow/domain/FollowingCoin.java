@@ -1,5 +1,7 @@
 package com.found_404.funco.follow.domain;
 
+import com.found_404.funco.global.util.CommissionUtil;
+import com.found_404.funco.trade.exception.TradeException;
 import org.hibernate.annotations.Comment;
 
 import com.found_404.funco.global.entity.BaseEntity;
@@ -13,6 +15,8 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import static com.found_404.funco.trade.exception.TradeErrorCode.INSUFFICIENT_COINS;
 
 @Entity
 @Getter
@@ -45,5 +49,17 @@ public class FollowingCoin extends BaseEntity {
 
 	public void sellFollowingCoin() {
 		this.volume = 0.0;
+	}
+
+	public void increaseVolume(double volume, Long price) {
+		this.averagePrice = (long) (((this.volume * this.averagePrice) + (volume * price)) / (volume + this.volume));
+		this.volume += CommissionUtil.getVolumeWithoutCommission(volume);
+	}
+
+	public void decreaseVolume(double volume) {
+		if (this.volume < volume) {
+			throw new TradeException(INSUFFICIENT_COINS);
+		}
+		this.volume -= volume;
 	}
 }

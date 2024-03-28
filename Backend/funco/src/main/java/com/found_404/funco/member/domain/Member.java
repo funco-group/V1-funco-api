@@ -1,6 +1,7 @@
 package com.found_404.funco.member.domain;
 
 import com.found_404.funco.global.entity.BaseEntity;
+import com.found_404.funco.global.util.CommissionUtil;
 import com.found_404.funco.member.domain.type.MemberStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -64,11 +65,7 @@ public class Member extends BaseEntity {
     }
 
     public void increaseCash(long orderCash) {
-        this.cash += getCashWithCommission(orderCash);
-    }
-
-    public long getCashWithCommission(long orderCash) {
-        return orderCash - (long) (orderCash * COMMISSION);
+        this.cash += CommissionUtil.getCashWithoutCommission(orderCash);
     }
 
     public void recoverCash(long cash) {

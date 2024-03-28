@@ -1,7 +1,8 @@
 package com.found_404.funco.rank.controller;
 
-import java.util.List;
-
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,7 +21,8 @@ public class RankController {
 	private final RankService rankService;
 
 	@GetMapping
-	public ResponseEntity<List<RankResponse>> getRanking(@RequestParam String type) {
-		return ResponseEntity.ok(rankService.readRanking(type));
+	public ResponseEntity<Page<RankResponse>> getRanking(@RequestParam String type,
+		@PageableDefault(size = 7) Pageable pageable) {
+		return ResponseEntity.ok(rankService.readRanking(type, pageable));
 	}
 }

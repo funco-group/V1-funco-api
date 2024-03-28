@@ -43,6 +43,10 @@ public class UpbitCryptoPrice implements CryptoPrice {
 
     @Override
     public Map<String, Long> getTickerPriceMap(List<String> tickers) {
+        if (tickers.isEmpty()) {
+            return Collections.emptyMap();
+        }
+
         String apiResponse = httpClientUtil.getApiResponse(getUrlWithParameters(tickers));
         if (Objects.isNull(apiResponse)) {
             throw new TradeException(PRICE_CONNECTION_FAIL);

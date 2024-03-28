@@ -91,7 +91,7 @@ public class QueryDslFollowRepositoryImpl implements QueryDslFollowRepository {
 					follow.investment, follow.settlement,
 					follow.returnRate, follow.commission, follow.settleDate))
 			.from(follow)
-			.where(checkSettleType(settleType), ltFollowId(lastFollowId))
+			.where(follow.following.id.eq(memberId), checkSettleType(settleType), ltFollowId(lastFollowId))
 			.orderBy(follow.id.desc())
 			.limit(pageSize + 1)
 			.fetch();

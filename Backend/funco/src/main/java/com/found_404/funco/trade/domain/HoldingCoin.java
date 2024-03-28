@@ -52,6 +52,10 @@ public class HoldingCoin extends BaseEntity {
 		this.volume += volume;
 	}
 
+	public void increaseVolume(double volume) {
+		this.volume += volume;
+	}
+
 	public void decreaseVolume(double volume) {
 		if (this.volume < volume) {
 			throw new TradeException(INSUFFICIENT_COINS);

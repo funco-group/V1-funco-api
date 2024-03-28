@@ -151,6 +151,7 @@ public class TradeService {
                 .build();
     }
 
+    @Transactional(readOnly = true)
     public List<TradeDto> getOrders(Long memberId, String ticker, Boolean follow, Pageable pageable) {
         Member member = getMember(memberId);
 
@@ -160,6 +161,7 @@ public class TradeService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
     public List<OpenTradeDto> getOpenOrders(Long memberId, Boolean follow, String ticker, Pageable pageable) {
         Member member = getMember(memberId);
 
@@ -171,16 +173,74 @@ public class TradeService {
 
     }
 
+    @Transactional
     public void deleteOpenTrade(Long memberId, Long openTradeId) {
         Member member = getMember(memberId);
 
         OpenTrade openTrade = openTradeRepository.findById(openTradeId)
                 .orElseThrow(() -> new TradeException(NOT_FOUND_TRADE));
-
         if (!openTrade.getMember().getId().equals(member.getId())) {
             throw new TradeException(TRADE_UNAUTHORIZED);
         }
 
         openTradeRepository.delete(openTrade);
+
+        // 돈 또는 코인 회수
+        if (openTrade.getTradeType().equals(TradeType.BUY)) {
+            member.increaseCash(openTrade.getOrderCash());
+        } else {
+            HoldingCoin holdingCoin = holdingCoinRepository.findByMemberAndTicker(openTrade.getMember(), openTrade.getTicker())
+                    .orElseThrow(() -> new TradeException(INSUFFICIENT_COINS));
+            holdingCoin.increaseVolume(openTrade.getVolume());
+        }
+    }
+
+    @Transactional
+    public void limitBuying(long memberId, String ticker, Long price, Double volume) {
+        Member member = getMember(memberId);
+
+        // 돈 확인 및 감소
+        long orderCash = (long) (price * volume);
+        member.decreaseCash(orderCash);
+
+        // 미체결 거래 등록
+        OpenTrade openTrade = openTradeRepository.save(OpenTrade.builder()
+                .ticker(ticker)
+                .tradeType(TradeType.BUY)
+                .member(member)
+                .orderCash(orderCash)
+                .price(price)
+                .volume(volume)
+                .status(Boolean.FALSE)
+                .build());
+
+        cryptoPrice.addTrade(openTrade.getTicker(), openTrade.getId(), openTrade.getTradeType(), openTrade.getPrice());
+    }
+
+    @Transactional
+    public void limitSelling(long memberId, String ticker, Long price, Double volume) {
+        Member member = getMember(memberId);
+
+        // 코인 확인 및 팔려고 등록한 만큼 빼기
+        Optional<HoldingCoin> holdingCoin = holdingCoinRepository.findByMemberAndTicker(member, ticker);
+        if (holdingCoin.isEmpty() || holdingCoin.get().getVolume() < volume) {
+            throw new TradeException(INSUFFICIENT_COINS);
+        } else {
+            holdingCoin.get().decreaseVolume(volume);
+        }
+
+        // 미체결 거래 생성
+        OpenTrade openTrade = openTradeRepository.save(OpenTrade.builder()
+                .ticker(ticker)
+                .tradeType(TradeType.SELL)
+                .member(member)
+                .orderCash((long) (volume * price))
+                .price(price)
+                .volume(volume)
+                .status(Boolean.FALSE)
+                .build());
+
+        // 미체결 거래 등록
+        cryptoPrice.addTrade(openTrade.getTicker(), openTrade.getId(), openTrade.getTradeType(), openTrade.getPrice());
     }
 }

@@ -50,4 +50,17 @@ public class OpenTrade extends BaseEntity {
         this.price = price;
         this.status = status;
     }
+
+    public static Trade toTrade(OpenTrade openTrade) {
+        return Trade.builder()
+                .ticker(openTrade.getTicker())
+                .volume(openTrade.getVolume())
+                .status(openTrade.getStatus())
+                .price(openTrade.getPrice())
+                .orderCash(openTrade.getOrderCash())
+                .tradeType(openTrade.getTradeType())
+                .member(openTrade.getMember())
+                .build();
+    }
+
 }

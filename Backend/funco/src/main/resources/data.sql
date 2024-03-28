@@ -10,10 +10,10 @@ VALUES (10000000, '2024-03-22 10:00:00', '2024-03-22 10:00:00', '황주영', '�
        (30000000, '2024-03-22 12:45:00', '2024-03-22 12:45:00', '김선주', '게임과 프로그래밍을 좋아하는 User3입니다.',
         'http://example.com/profiles/user3.jpg', 'oauthid5', 'NORMAL');
 
-INSERT INTO holding_coin (member_id, ticker, volume, average_price)
-VALUES (1, 'KRW-BTC', 2.5, 95000000),
-       (1, 'KRW-ETH', 10.0, 3000000),
-       (1, 'KRW-SOL', 500.0, 1500);
+INSERT INTO holding_coin (member_id, ticker, volume, average_price) VALUES
+(1, 'KRW-BTC', 2.5, 95000000),
+(1, 'KRW-ETH', 10.0, 3000000),
+(1, 'KRW-XRP', 500.0, 1500);
 
 
 -- 체결 거래 내역

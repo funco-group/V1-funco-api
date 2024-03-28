@@ -60,7 +60,7 @@ public class Member extends BaseEntity {
         if (this.cash < orderCash) {
             throw new RuntimeException("잔액이 부족합니다.");  // member domain에서 custom exception 추가
         }
-        this.cash -= getCashWithCommission(orderCash);
+        this.cash -= orderCash;
     }
 
     public void increaseCash(long orderCash) {

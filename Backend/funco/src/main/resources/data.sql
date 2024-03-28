@@ -1,27 +1,49 @@
-INSERT INTO member (cash, created_at, updated_at, nickname, introduction, profile_url, oauth_id, status)
-VALUES (10000000, '2024-03-22 10:00:00', '2024-03-22 10:00:00', '황주영', '안녕하세요, User1입니다.',
-        'http://example.com/profiles/user1.jpg', 'oauthid1', 'NORMAL'),
-       (20000000, '2024-03-22 11:30:00', '2024-03-22 11:30:00', '박세웅', '시스템 관리자입니다.',
-        'http://example.com/profiles/adminuser.jpg', 'oauthid2', 'ADMIN'),
-       (50000000, '2024-03-22 09:20:00', '2024-03-22 09:20:00', '엄소현', '이제 사용하지 않는 계정입니다.',
-        'http://example.com/profiles/withdrawnuser.jpg', 'oauthid3', 'WITHDRAW'),
-       (15000000, '2024-03-22 08:15:00', '2024-03-22 08:15:00', '이태호', '안녕하세요, User2입니다. 여행을 좋아해요.',
-        'http://example.com/profiles/user2.jpg', 'oauthid4', 'NORMAL'),
-       (30000000, '2024-03-22 12:45:00', '2024-03-22 12:45:00', '김선주', '게임과 프로그래밍을 좋아하는 User3입니다.',
-        'http://example.com/profiles/user3.jpg', 'oauthid5', 'NORMAL');
-
-INSERT INTO holding_coin (member_id, ticker, volume, average_price) VALUES
-(1, 'KRW-BTC', 2.5, 95000000),
-(1, 'KRW-ETH', 10.0, 3000000),
-(1, 'KRW-XRP', 500.0, 1500);
+INSERT INTO funco.member (cash, nickname, introduction, profile_url, oauth_id, status)
+VALUES (100000000, '박세웅', '안녕하세요! 박세웅입니다.', 'https://example.com/profiles/parksewoong.jpg', 'oauth_parksewoong',
+        'NORMAL'),
+       (100000000, '황주영', '반가워요! 황주영입니다.', 'https://example.com/profiles/hwangjuyoung.jpg', 'oauth_hwangjuyoung',
+        'NORMAL'),
+       (100000000, '소재열', '안녕하세요. 저는 소재열이에요.', 'https://example.com/profiles/sojaeyeol.jpg', 'oauth_sojaeyeol',
+        'NORMAL'),
+       (100000000, '엄소현', '반가워요! 엄소현입니다.', 'https://example.com/profiles/eomsohyun.jpg', 'oauth_eomsohyun', 'NORMAL'),
+       (100000000, '이선주', '안녕하세요! 이선주입니다.', 'https://example.com/profiles/leeseonjoo.jpg', 'oauth_leeseonjoo',
+        'NORMAL'),
+       (100000000, '이태호', '반가워요! 이태호입니다.', 'https://example.com/profiles/leetaeho.jpg', 'oauth_leetaeho', 'NORMAL');
 
 
--- 체결 거래 내역
-INSERT INTO trade (member_id, ticker, trade_type, volume, order_cash, price, status)
-VALUES (1, 'KRW-BTC', 'BUY', 0.08, 70000000, 500000, false),
-       (1, 'KRW-ETH', 'SELL', 1.2, 8300000, 1000000, false);
+INSERT INTO holding_coin (member_id, ticker, volume, average_price)
+VALUES (1, 'KRW-BTC', 1.0, 95000000),
+       (1, 'KRW-ETH', 1.0, 3000000),
+       (1, 'KRW-BCH', 1.0, 1500),
+       (1, 'KRW-SOL', 1.0, 1500),
+       (2, 'KRW-BTC', 1.0, 95000000),
+       (2, 'KRW-ETH', 1.0, 3000000),
+       (2, 'KRW-BCH', 1.0, 1500),
+       (2, 'KRW-SOL', 2.0, 1500),
+       (3, 'KRW-BTC', 1.0, 95000000),
+       (3, 'KRW-ETH', 1.0, 3000000),
+       (3, 'KRW-BCH', 1.0, 1500),
+       (3, 'KRW-SOL', 1.0, 1500),
+       (4, 'KRW-BTC', 1.0, 95000000),
+       (4, 'KRW-ETH', 1.0, 3000000),
+       (4, 'KRW-BCH', 1.0, 1500),
+       (4, 'KRW-SOL', 1.0, 1500),
+       (5, 'KRW-BTC', 1.0, 95000000),
+       (5, 'KRW-ETH', 1.0, 3000000),
+       (5, 'KRW-BCH', 1.0, 1500),
+       (5, 'KRW-SOL', 1.0, 1500);
 
--- 미체결 거래 내역
-INSERT INTO open_trade (member_id, ticker, trade_type, volume, order_cash, price, status)
-VALUES (1, 'KRW-BTC', 'BUY', 0.08, 80000000, 700000, false),
-       (1, 'KRW-ETH', 'SELL', 1.2, 9110000, 1400000, false);
+INSERT INTO funco.follow (return_rate, settled, cash, commission, follower_id, following_id, investment, settle_date,
+                          settlement)
+VALUES (0.05, true, 50000, 1000, 1, 2, 100000, '2024-03-30 08:00:00', 52500),
+       (NULL, false, 80000, NULL, 1, 3, 120000, NULL, NULL),
+       (0.06, true, 70000, 2000, 2, 1, 150000, '2024-03-29 10:00:00', 75000),
+       (0.04, true, 60000, 1200, 2, 4, 90000, '2024-03-30 11:00:00', 62400),
+       (0.07, true, 90000, 2500, 3, 1, 180000, '2024-03-29 12:00:00', 94500),
+       (NULL, false, 40000, NULL, 3, 2, 80000, NULL, NULL),
+       (0.08, true, 100000, 3000, 4, 1, 200000, '2024-03-29 14:00:00', 108000),
+       (0.06, true, 85000, 1800, 4, 3, 160000, '2024-03-30 15:00:00', 106800),
+       (0.05, true, 95000, 2100, 5, 1, 210000, '2024-03-29 16:00:00', 110250),
+       (0.04, true, 75000, 1500, 5, 2, 140000, '2024-03-30 17:00:00', 73500),
+       (NULL, false, 30000, NULL, 6, 1, 130000, NULL, NULL),
+       (0.09, true, 105000, 2800, 6, 3, 175000, '2024-03-29 19:00:00', 131250);

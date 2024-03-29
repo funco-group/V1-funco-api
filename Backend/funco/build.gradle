@@ -45,7 +45,7 @@ dependencies {
     runtimeOnly 'com.h2database:h2'
 
     // mariadb
-//    runtimeOnly 'org.mariadb.jdbc:mariadb-java-client'
+    runtimeOnly 'org.mariadb.jdbc:mariadb-java-client'
 
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'

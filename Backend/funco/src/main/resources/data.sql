@@ -1,5 +1,5 @@
-INSERT INTO funco.member (cash, nickname, introduction, profile_url, oauth_id, status)
-VALUES (100000000, '박세웅', '안녕하세요! 박세웅입니다.', 'https://example.com/profiles/parksewoong.jpg', 'oauth_parksewoong',
+INSERT INTO member (cash, nickname, introduction, profile_url, oauth_id, status)
+VALUES (100000000, '황주영', '안녕하세요! 황입니다.', 'https://example.com/profiles/parksewoong.jpg', 'oauth_parksewoong',
         'NORMAL'),
        (100000000, '황주영', '반가워요! 황주영입니다.', 'https://example.com/profiles/hwangjuyoung.jpg', 'oauth_hwangjuyoung',
         'NORMAL'),
@@ -33,7 +33,7 @@ VALUES (1, 'KRW-BTC', 1.0, 95000000),
        (5, 'KRW-BCH', 1.0, 1500),
        (5, 'KRW-SOL', 1.0, 1500);
 
-INSERT INTO funco.follow (return_rate, settled, cash, commission, follower_id, following_id, investment, settle_date,
+INSERT INTO follow (return_rate, settled, cash, commission, follower_id, following_id, investment, settle_date,
                           settlement)
 VALUES (0.05, true, 50000, 1000, 1, 2, 100000, '2024-03-30 08:00:00', 52500),
        (NULL, false, 80000, NULL, 1, 3, 120000, NULL, NULL),
@@ -47,3 +47,10 @@ VALUES (0.05, true, 50000, 1000, 1, 2, 100000, '2024-03-30 08:00:00', 52500),
        (0.04, true, 75000, 1500, 5, 2, 140000, '2024-03-30 17:00:00', 73500),
        (NULL, false, 30000, NULL, 6, 1, 130000, NULL, NULL),
        (0.09, true, 105000, 2800, 6, 3, 175000, '2024-03-29 19:00:00', 131250);
+
+
+-- Member 테이블에 존재하는 회원 ID를 사용하여 알림 데이터를 insert합니다.
+INSERT INTO Notification (member_id, type, message, read_yn) VALUES
+(1, 'BUY', 'BTC 0.001개 900000000에 체결.', false),
+(1, 'SELL', 'BTC 0.001개 900000000에 체결.', false),
+(1, 'FOLLOW', '황주영님이 500000원 팔로우하셨습니다.', true);

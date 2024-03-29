@@ -54,12 +54,12 @@ public class FollowService {
 	public void createFollow(FollowingRequest request, Long memberId) {
 
 		// 팔로우 하려는 대상이 본인이라면 예외
-		if (request.followingId().equals(memberId)) {
+		if (request.memberId().equals(memberId)) {
 			throw new FollowException(FOLLOW_SELF_ERROR);
 		}
 
 		// 부모 팔로우 멤버
-		Member followingMember = findMemberById(request.followingId());
+		Member followingMember = findMemberById(request.memberId());
 		// 자식 팔로우 멤버
 		Member followerMember = findMemberById(memberId);
 

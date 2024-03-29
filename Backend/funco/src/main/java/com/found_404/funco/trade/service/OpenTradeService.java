@@ -1,5 +1,6 @@
 package com.found_404.funco.trade.service;
 
+import com.found_404.funco.follow.service.FollowTradeService;
 import com.found_404.funco.trade.domain.HoldingCoin;
 import com.found_404.funco.trade.domain.OpenTrade;
 import com.found_404.funco.trade.domain.Trade;
@@ -23,6 +24,7 @@ public class OpenTradeService {
     private final TradeRepository tradeRepository;
     private final HoldingCoinRepository holdingCoinRepository;
     private final OpenTradeRepository openTradeRepository;
+    private final FollowTradeService followTradeService;
 
     @Async
     @Transactional
@@ -41,6 +43,7 @@ public class OpenTradeService {
 
         // 체결 데이터 저장
         tradeRepository.saveAll(trades);
+        followTradeService.followTrade(trades);
 
         // 미체결 데이터 삭제
         openTradeRepository.deleteAll(openTrades);

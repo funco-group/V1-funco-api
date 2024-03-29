@@ -55,7 +55,7 @@ public class TradeController {
     }
 
     // 보유 중인 코인 조회
-    @GetMapping("/crypto/holding")
+    @GetMapping("/holding")
     public ResponseEntity<HoldingCoinsResponse> getHoldingCoin() {
         final Long memberId = 1L;
 

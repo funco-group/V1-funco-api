@@ -1,5 +1,6 @@
 package com.found_404.funco.notification.domain;
 
+import com.found_404.funco.notification.dto.NotificationDto;
 import org.hibernate.annotations.Comment;
 
 import com.found_404.funco.global.entity.BaseEntity;
@@ -46,5 +47,9 @@ public class Notification extends BaseEntity {
 		this.type = type;
 		this.message = message;
 		this.readYn = readYn;
+	}
+
+	public void read() {
+		this.readYn = true;
 	}
 }

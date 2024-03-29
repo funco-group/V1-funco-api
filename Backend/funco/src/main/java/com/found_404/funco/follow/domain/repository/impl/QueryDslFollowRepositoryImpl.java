@@ -6,6 +6,7 @@ import static com.found_404.funco.follow.exception.FollowErrorCode.*;
 import static com.found_404.funco.trade.domain.QHoldingCoin.*;
 import static com.querydsl.core.group.GroupBy.*;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -60,7 +61,7 @@ public class QueryDslFollowRepositoryImpl implements QueryDslFollowRepository {
 				.investment(result.investment())
 				.followedAt(result.followedAt())
 				.cash(result.cash())
-				.coins(queryFollowingCoinInfoResult.get(result.followId()))
+				.coins(queryFollowingCoinInfoResult.getOrDefault(result.followId(), Collections.EMPTY_LIST))
 				.build())
 			.toList();
 

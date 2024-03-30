@@ -24,9 +24,20 @@ spring:
       hibernate:
         format_sql: true
 
-
   data:
     redis:
       host: localhost
       port: 6379
       password: funco
+
+  jwt:
+    token:
+      secret-key: QTEwN2phbnNvcnJ5dGVhbWRuZmxya2RsZW1kZ2tmcmpkaWFrZmZsd2xha2RrcnBUc2kK
+      refresh-secret-key: QTEwN2phbnNvcnJ5dGVhbWZsdm1mcHRubHhoem1zZHBlb2drZ2tzcmtxdGRsc2xSa3Jqc2VtZndsYWsK
+
+  oauth:
+    google:
+      client-id: 298082348622-3gp2shappr5oth3a6ad9k2hvie46qck1.apps.googleusercontent.com
+      client-secret-id: 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
+      redirect-uri: http://localhost:5173/redirect
+      scope: profile,email

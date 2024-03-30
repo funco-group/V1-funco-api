@@ -1,4 +1,4 @@
-INSERT INTO funco.member (cash, nickname, introduction, profile_url, oauth_id, status)
+INSERT INTO member (cash, nickname, introduction, profile_url, oauth_id, status)
 VALUES (100000000, '박세웅', '안녕하세요! 박세웅입니다.', 'https://example.com/profiles/parksewoong.jpg', 'oauth_parksewoong',
         'NORMAL'),
        (100000000, '황주영', '반가워요! 황주영입니다.', 'https://example.com/profiles/hwangjuyoung.jpg', 'oauth_hwangjuyoung',
@@ -33,7 +33,7 @@ VALUES (1, 'KRW-BTC', 1.0, 95000000),
        (5, 'KRW-BCH', 1.0, 1500),
        (5, 'KRW-SOL', 1.0, 1500);
 
-INSERT INTO funco.follow (return_rate, settled, cash, commission, follower_id, following_id, investment, settle_date,
+INSERT INTO follow (return_rate, settled, cash, commission, follower_id, following_id, investment, settle_date,
                           settlement)
 VALUES (0.05, true, 50000, 1000, 1, 2, 100000, '2024-03-30 08:00:00', 52500),
        (NULL, false, 80000, NULL, 1, 3, 120000, NULL, NULL),

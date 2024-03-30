@@ -38,3 +38,6 @@ out/
 
 ### local 환경 변수 ###
 application-local.yml
+
+### .idea 파일
+../../.idea/

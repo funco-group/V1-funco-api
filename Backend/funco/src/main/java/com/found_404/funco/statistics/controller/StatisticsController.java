@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.found_404.funco.global.util.AuthMemberId;
 import com.found_404.funco.statistics.dto.response.DailyStatisticsResponse;
 import com.found_404.funco.statistics.dto.response.MonthlyStatisticsResponse;
 import com.found_404.funco.statistics.service.StatisticsService;
@@ -23,15 +24,15 @@ public class StatisticsController {
 	private final StatisticsService statisticsService;
 
 	@GetMapping("/daily")
-	public ResponseEntity<List<DailyStatisticsResponse>> getDailyStatistics(@RequestParam Integer year,
+	public ResponseEntity<List<DailyStatisticsResponse>> getDailyStatistics(@AuthMemberId Long memberId,
+		@RequestParam Integer year,
 		@RequestParam Integer month) {
-		Long memberId = 1L;
 		return ResponseEntity.status(HttpStatus.OK).body(statisticsService.readDailyStatistics(memberId, year, month));
 	}
 
 	@GetMapping("/monthly")
-	public ResponseEntity<List<MonthlyStatisticsResponse>> getMonthlyStatistics(@RequestParam Integer year) {
-		Long memberId = 1L;
+	public ResponseEntity<List<MonthlyStatisticsResponse>> getMonthlyStatistics(@AuthMemberId Long memberId,
+		@RequestParam Integer year) {
 		return ResponseEntity.status(HttpStatus.OK).body(statisticsService.readMonthlyStatistics(memberId, year));
 	}
 }

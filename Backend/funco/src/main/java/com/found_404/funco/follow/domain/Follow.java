@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.found_404.funco.global.util.CommissionUtil;
 import org.hibernate.annotations.Comment;
 
 import com.found_404.funco.global.entity.BaseEntity;
@@ -80,5 +81,16 @@ public class Follow extends BaseEntity {
 		this.settleDate = settleDate;
 		this.settled = true;
 		this.settlement = settlement;
+	}
+
+	public void decreaseCash(long orderCash) {
+		if (this.cash < orderCash) {
+			throw new RuntimeException("잔액이 부족합니다.");  // member domain에서 custom exception 추가
+		}
+		this.cash -= orderCash;
+	}
+
+	public void increaseCash(long orderCash) {
+		this.cash += CommissionUtil.getCashWithoutCommission(orderCash);
 	}
 }

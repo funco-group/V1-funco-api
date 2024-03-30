@@ -1,5 +1,6 @@
 package com.found_404.funco.trade.service;
 
+import com.found_404.funco.follow.service.FollowTradeService;
 import com.found_404.funco.member.domain.Member;
 import com.found_404.funco.member.domain.repository.MemberRepository;
 import com.found_404.funco.member.exception.MemberException;
@@ -38,8 +39,8 @@ public class TradeService {
     private final HoldingCoinRepository holdingCoinRepository;
     private final OpenTradeRepository openTradeRepository;
 
-    private static final Double TRADE_FEE = 0.05;
     private final CryptoPrice cryptoPrice;
+    private final FollowTradeService followTradeService;
 
 
     private long getPriceByTicker(String ticker) {
@@ -57,9 +58,8 @@ public class TradeService {
         // orderCash <= 자산 check, member 원화 감소
         member.decreaseCash(orderCash);
 
-        // 수수료 제외한 구매 개수
+        // 구매 개수
         double volume = (double) orderCash / currentPrice;
-        volume -= volume * TRADE_FEE;
 
         // 코인 있으면 더하기 없으면 추가
         Optional<HoldingCoin> holdingCoin = holdingCoinRepository.findByMemberAndTicker(member, ticker);
@@ -87,7 +87,8 @@ public class TradeService {
 
         tradeRepository.save(trade);
 
-        // 팔로우 구매 처리 필요 *
+        // 팔로우 연동
+        followTradeService.followTrade(trade);
 
         return MarketTradeResponse.builder()
                 .ticker(trade.getTicker())
@@ -106,7 +107,7 @@ public class TradeService {
 
         // 수수료 제외한 잔액 증가
         long orderCash = (long) (currentPrice * volume);
-        member.increaseCash(orderCash - (long) (orderCash * TRADE_FEE));
+        member.increaseCash(orderCash);
 
         // 코인 감소
         HoldingCoin holdingCoin = holdingCoinRepository.findByMemberAndTicker(member, ticker)
@@ -126,7 +127,8 @@ public class TradeService {
 
         tradeRepository.save(trade);
 
-        // 팔로우 매도 로직 필요
+        // 팔로우 연동
+        followTradeService.followTrade(trade);
 
         return MarketTradeResponse.builder()
                 .ticker(trade.getTicker())
@@ -187,11 +189,11 @@ public class TradeService {
 
         // 돈 또는 코인 회수
         if (openTrade.getTradeType().equals(TradeType.BUY)) {
-            member.increaseCash(openTrade.getOrderCash());
+            member.recoverCash(openTrade.getOrderCash());
         } else {
             HoldingCoin holdingCoin = holdingCoinRepository.findByMemberAndTicker(openTrade.getMember(), openTrade.getTicker())
                     .orElseThrow(() -> new TradeException(INSUFFICIENT_COINS));
-            holdingCoin.increaseVolume(openTrade.getVolume());
+            holdingCoin.recoverVolume(openTrade.getVolume());
         }
     }
 

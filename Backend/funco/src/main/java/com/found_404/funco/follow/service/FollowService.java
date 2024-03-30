@@ -16,7 +16,10 @@ import com.found_404.funco.follow.domain.Follow;
 import com.found_404.funco.follow.domain.FollowingCoin;
 import com.found_404.funco.follow.domain.repository.FollowRepository;
 import com.found_404.funco.follow.domain.repository.FollowingCoinRepository;
+import com.found_404.funco.follow.dto.SliceFollowingInfo;
 import com.found_404.funco.follow.dto.request.FollowingRequest;
+import com.found_404.funco.follow.dto.response.FollowerListResponse;
+import com.found_404.funco.follow.dto.response.FollowingListResponse;
 import com.found_404.funco.follow.exception.FollowException;
 import com.found_404.funco.member.domain.Member;
 import com.found_404.funco.member.domain.repository.MemberRepository;
@@ -45,18 +48,24 @@ public class FollowService {
 	private final CryptoPrice cryptoPrice;
 
 	private static final double FOLLOW_FEE = 0.03;
-	private static final int PAGE_SIZE = 2;
+	private static final int PAGE_SIZE = 10;
 
 	@Transactional
 	public void createFollow(FollowingRequest request, Long memberId) {
 
+		// 팔로우 하려는 대상이 본인이라면 예외
+		if (request.memberId().equals(memberId)) {
+			throw new FollowException(FOLLOW_SELF_ERROR);
+		}
+
 		// 부모 팔로우 멤버
-		Member followingMember = findMemberById(request.followingId());
+		Member followingMember = findMemberById(request.memberId());
 		// 자식 팔로우 멤버
 		Member followerMember = findMemberById(memberId);
 
 		// 팔로우 되어있다면 예외
-		Optional<Follow> selectFollow = followRepository.findByFollowingAndFollower(followingMember, followerMember);
+		Optional<Follow> selectFollow = followRepository.findFollowByFollowingAndFollowerAndSettledFalse(
+			followingMember, followerMember);
 		if (selectFollow.isPresent()) {
 			throw new FollowException(FOLLOW_DUPLICATED_ERROR);
 		}
@@ -86,7 +95,7 @@ public class FollowService {
 					holdingCoin -> (long)(followingCryptoPriceMap.get(holdingCoin.getTicker())
 						* holdingCoin.getVolume())));
 		// 총 보유 자산
-		Long asset = followingCryptoToAssetMap.values().stream()
+		long asset = followingCryptoToAssetMap.values().stream()
 			.mapToLong(Long::longValue)
 			.sum() + followingCash;
 
@@ -202,6 +211,23 @@ public class FollowService {
 
 		// 데이터 insert
 		tradeRepository.saveAll(trades);
+	}
+
+	public FollowingListResponse readFollowingList(Long memberId, Long lastFollowId) {
+		Long totalAsset = cryptoPrice.getTickerPriceMap(followRepository.findHoldingCoin(memberId)).values().stream()
+			.mapToLong(Long::longValue)
+			.sum();
+		SliceFollowingInfo sliceFollowingInfo = followRepository.findFollowingInfoListByMemberId(memberId,
+			lastFollowId, PAGE_SIZE);
+		return FollowingListResponse.builder()
+			.totalAsset(totalAsset)
+			.followings(sliceFollowingInfo.followingInfoList())
+			.last(sliceFollowingInfo.last())
+			.build();
+	}
+
+	public FollowerListResponse readFollowerList(Long memberId, String settled, Long lastFollowId) {
+		return followRepository.findFollowerListByMemberIdAndSettleType(memberId, settled, lastFollowId, PAGE_SIZE);
 	}
 
 	private Member findMemberById(Long memberId) {

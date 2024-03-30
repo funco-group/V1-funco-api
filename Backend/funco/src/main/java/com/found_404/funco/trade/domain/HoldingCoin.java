@@ -1,5 +1,6 @@
 package com.found_404.funco.trade.domain;
 
+import com.found_404.funco.global.util.CommissionUtil;
 import com.found_404.funco.trade.exception.TradeException;
 import org.hibernate.annotations.Comment;
 
@@ -49,11 +50,7 @@ public class HoldingCoin extends BaseEntity {
 
 	public void increaseVolume(double volume, Long price) {
 		this.averagePrice = (long) (((this.volume * this.averagePrice) + (volume * price)) / (volume + this.volume));
-		this.volume += volume;
-	}
-
-	public void increaseVolume(double volume) {
-		this.volume += volume;
+		this.volume += CommissionUtil.getVolumeWithoutCommission(volume);
 	}
 
 	public void decreaseVolume(double volume) {
@@ -61,6 +58,10 @@ public class HoldingCoin extends BaseEntity {
 			throw new TradeException(INSUFFICIENT_COINS);
 		}
 		this.volume -= volume;
+	}
+
+	public void recoverVolume(double volume) {
+		this.volume += volume;
 	}
 
 }

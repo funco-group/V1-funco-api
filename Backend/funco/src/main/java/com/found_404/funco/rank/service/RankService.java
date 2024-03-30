@@ -5,8 +5,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ZSetOperations;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import com.found_404.funco.follow.dto.FollowingCoinInfo;
@@ -26,17 +30,27 @@ public class RankService {
 	private final RankCustomRepository rankCustomRepository;
 	private final CryptoPrice cryptoPrice;
 
-	public List<RankResponse> readRanking(String type) {
-		runSchedulingProcess();
-		ZSetOperations<String, Object> ZSetOperations = rankZSetRedisTemplate.opsForZSet();
-		Set<ZSetOperations.TypedTuple<Object>> typedTuples = ZSetOperations.reverseRangeWithScores(
-			type.toUpperCase().equals(RankType.ASSET.toString()) ? RankType.ASSET.getDescription() :
-				RankType.FOLLOWER_CASH.getDescription(),
-			0, -1);
-		return RankResponse.from(typedTuples);
+	public Page<RankResponse> readRanking(String type, Pageable pageable) {
+		ZSetOperations<String, Object> zSetOperations = rankZSetRedisTemplate.opsForZSet();
+		String zSetName = type.toUpperCase().equals(RankType.ASSET.toString()) ? RankType.ASSET.getDescription() :
+			RankType.FOLLOWER_CASH.getDescription();
+
+		// 페이징 처리된 결과 가져오기
+		Set<ZSetOperations.TypedTuple<Object>> typedTuples = zSetOperations.reverseRangeWithScores(zSetName,
+			pageable.getOffset() + (pageable.getOffset() == 0 ? 0 : 3),
+			pageable.getOffset() + pageable.getPageSize() + (pageable.getOffset() == 0 ? 3 : 0) - 1);
+
+		// 가져온 결과를 RankResponse 객체로 변환
+		List<RankResponse> rankResponses = RankResponse.from(typedTuples);
+		// 전체 결과 수 가져오기
+		Long totalElements = zSetOperations.zCard(zSetName);
+
+		// Page 객체 생성
+		return new PageImpl<>(rankResponses, pageable, totalElements - 3);
 	}
 
 	// 배치 전 - 스케줄링 돌릴 메서드
+	@Scheduled(fixedRate = 1800000) // 30분마다 실행
 	public void runSchedulingProcess() {
 		// redis 비우는 작업
 		clearRankingZSets();

@@ -8,7 +8,7 @@ import lombok.Builder;
 public record FollowingRequest(
 
 	@NotNull
-	Long followingId,
+	Long memberId,
 	@NotNull
 	@Positive
 	Long investment

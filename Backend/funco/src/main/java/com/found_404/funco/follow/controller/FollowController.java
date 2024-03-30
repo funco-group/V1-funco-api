@@ -15,6 +15,7 @@ import com.found_404.funco.follow.dto.request.FollowingRequest;
 import com.found_404.funco.follow.dto.response.FollowerListResponse;
 import com.found_404.funco.follow.dto.response.FollowingListResponse;
 import com.found_404.funco.follow.service.FollowService;
+import com.found_404.funco.global.util.AuthMemberId;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -27,9 +28,8 @@ public class FollowController {
 	private final FollowService followService;
 
 	@PostMapping
-	public ResponseEntity<Void> addFollow(@RequestBody @Valid FollowingRequest request) {
-		Long memberID = 3L;
-		followService.createFollow(request, memberID);
+	public ResponseEntity<Void> addFollow(@AuthMemberId Long memberId, @RequestBody @Valid FollowingRequest request) {
+		followService.createFollow(request, memberId);
 		return ResponseEntity.status(HttpStatus.CREATED).build();
 	}
 
@@ -40,16 +40,15 @@ public class FollowController {
 	}
 
 	@GetMapping("/following")
-	public ResponseEntity<FollowingListResponse> getFollowingList(
+	public ResponseEntity<FollowingListResponse> getFollowingList(@AuthMemberId Long memberId,
 		@RequestParam(required = false) Long lastFollowId) {
-		Long memberId = 3L;
 		return ResponseEntity.status(HttpStatus.OK).body(followService.readFollowingList(memberId, lastFollowId));
 	}
 
 	@GetMapping("/follower")
-	public ResponseEntity<FollowerListResponse> getFollowerList(@RequestParam String settled,
+	public ResponseEntity<FollowerListResponse> getFollowerList(@AuthMemberId Long memberId,
+		@RequestParam String settled,
 		@RequestParam(required = false) Long lastFollowId) {
-		Long memberId = 2L;
 		return ResponseEntity.status(HttpStatus.OK)
 			.body(followService.readFollowerList(memberId, settled, lastFollowId));
 	}

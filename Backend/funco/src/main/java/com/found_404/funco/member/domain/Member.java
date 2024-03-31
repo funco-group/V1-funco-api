@@ -3,6 +3,8 @@ package com.found_404.funco.member.domain;
 import com.found_404.funco.global.entity.BaseEntity;
 import com.found_404.funco.global.util.CommissionUtil;
 import com.found_404.funco.member.domain.type.MemberStatus;
+import com.found_404.funco.trade.exception.TradeErrorCode;
+import com.found_404.funco.trade.exception.TradeException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -59,7 +61,7 @@ public class Member extends BaseEntity {
 
     public void decreaseCash(long orderCash) {
         if (this.cash < orderCash) {
-            throw new RuntimeException("잔액이 부족합니다.");  // member domain에서 custom exception 추가
+            throw new TradeException(TradeErrorCode.INSUFFICIENT_COINS);
         }
         this.cash -= orderCash;
     }

@@ -12,6 +12,6 @@ import com.found_404.funco.member.domain.Member;
 public interface FollowRepository extends JpaRepository<Follow, Long>, QueryDslFollowRepository {
 	Optional<Follow> findFollowByFollowingAndFollowerAndSettledFalse(Member following, Member follower);
 
-	@EntityGraph(attributePaths = {"following"})
+	@EntityGraph(attributePaths = {"following","follower"})
 	List<Follow> findAllByFollowingAndSettled(Member following, Boolean settled);
 }

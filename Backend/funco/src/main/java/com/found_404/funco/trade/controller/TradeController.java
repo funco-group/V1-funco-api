@@ -21,7 +21,7 @@ public class TradeController {
     private final TradeService tradeService;
 
     // 시장가 매수
-    @PostMapping("/trade/market-buying")
+    @PostMapping("/market-buying")
     public ResponseEntity<MarketTradeResponse> marketBuying(@RequestBody @Valid MarketBuyingRequest request) {
         final long memberId = 1L;
 
@@ -29,7 +29,7 @@ public class TradeController {
     }
 
     // 시장가 매도
-    @PostMapping("/trade/market-selling")
+    @PostMapping("/market-selling")
     public ResponseEntity<MarketTradeResponse> marketSelling(@RequestBody @Valid MarketSellingRequest request) {
         final long memberId = 1L;
 
@@ -63,7 +63,7 @@ public class TradeController {
     }
 
     // 체결 코인 거래 내역, param ticker , follow 여부 필수
-    @GetMapping()
+    @GetMapping("/orders")
     public ResponseEntity<List<TradeDto>> getOrders(Pageable pageable, TradeRequest tradeRequest) {
         final Long memberId = 1L;
 

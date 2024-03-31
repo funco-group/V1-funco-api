@@ -90,6 +90,8 @@ public class TradeService {
         // 팔로우 연동
         followTradeService.followTrade(trade);
 
+        System.out.println("팔로우 비동기 이후 로직!");
+
         return MarketTradeResponse.builder()
                 .ticker(trade.getTicker())
                 .price(trade.getPrice())

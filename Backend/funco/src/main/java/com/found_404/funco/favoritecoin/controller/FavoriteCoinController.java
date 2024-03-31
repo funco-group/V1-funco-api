@@ -18,7 +18,7 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/crypto/favorite")
+@RequestMapping("/v1/crypto/favorite")
 public class FavoriteCoinController {
 
 	private final FavoriteCoinService favoriteCoinService;

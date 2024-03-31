@@ -38,6 +38,5 @@ out/
 
 ### local 환경 변수 ###
 application-local.yml
-
-### .idea 파일
-../../.idea/
+### 릴리즈 브랜치에 병합 시 충돌 방지 ###
+application.yml

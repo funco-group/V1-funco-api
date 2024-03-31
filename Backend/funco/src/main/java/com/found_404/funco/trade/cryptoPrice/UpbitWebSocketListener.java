@@ -40,8 +40,8 @@ public class UpbitWebSocketListener extends WebSocketListener {
     }
 
     public void addTrade(TradeType tradeType, String ticker, Long id, Long price) {
-        buyTrades.putIfAbsent(ticker, new PriorityQueue<>((t1, t2) -> Long.compare(t1.price, t2.price))); // 최소힙
-        sellTrades.putIfAbsent(ticker, new PriorityQueue<>((t1, t2) -> Long.compare(t2.price, t1.price))); // 최대힙
+        buyTrades.putIfAbsent(ticker, new PriorityQueue<>((t1, t2) -> Long.compare(t2.price, t1.price))); // 최소힙
+        sellTrades.putIfAbsent(ticker, new PriorityQueue<>((t1, t2) -> Long.compare(t1.price, t2.price))); // 최대힙
 
         if (tradeType.equals(TradeType.BUY)) {
             buyTrades.get(ticker).add(new ProcessingTrade(id, price));
@@ -89,6 +89,9 @@ public class UpbitWebSocketListener extends WebSocketListener {
 
         PriorityQueue<ProcessingTrade> buyQueue = buyTrades.get(code);
         System.out.println("buy queue -> "+ buyTrades.get(code).size());
+
+        System.out.println("제일 비싼 산다 : " +(buyQueue.isEmpty() ? "없음" : buyQueue.peek().price));
+        System.out.println("현재 가격 : " + tradePrice);
 
         while (!buyQueue.isEmpty() && buyQueue.peek().price >= tradePrice) {
             concludingTradeIds.add(buyQueue.poll().id);

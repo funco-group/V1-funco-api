@@ -2,6 +2,7 @@ package com.found_404.funco.trade.domain;
 
 import com.found_404.funco.global.util.CommissionUtil;
 import com.found_404.funco.trade.exception.TradeException;
+import lombok.*;
 import org.hibernate.annotations.Comment;
 
 import com.found_404.funco.global.entity.BaseEntity;
@@ -12,15 +13,12 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 import static com.found_404.funco.trade.exception.TradeErrorCode.INSUFFICIENT_COINS;
 
 @Entity
 @Getter
+@ToString
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class HoldingCoin extends BaseEntity {
 

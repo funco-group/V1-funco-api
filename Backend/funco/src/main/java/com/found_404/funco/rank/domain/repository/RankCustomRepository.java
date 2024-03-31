@@ -8,7 +8,7 @@ import com.found_404.funco.trade.dto.HoldingCoinInfo;
 public interface RankCustomRepository {
 	List<HoldingCoinInfo> findHoldingCoinInfo();
 
-	List<FollowingCoinInfo> findFollowingCoin();
+	List<FollowingCoinInfo> findFollowingCoinInfo();
 
 	List<String> findHoldingCoin();
 }

@@ -1,5 +1,6 @@
 package com.found_404.funco.rank.service;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -12,6 +13,8 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import com.found_404.funco.follow.dto.FollowingCoinInfo;
 import com.found_404.funco.rank.domain.repository.RankCustomRepository;
@@ -24,6 +27,7 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class RankService {
 
 	private final RedisTemplate<String, Object> rankZSetRedisTemplate;
@@ -72,7 +76,7 @@ public class RankService {
 		Map<Long, Long> holdingCoins = calculateHoldingCoins(tickerPrice);
 
 		// 팔로워 자산 계산
-		List<FollowingCoinInfo> followingCoinInfos = rankCustomRepository.findFollowingCoin();
+		List<FollowingCoinInfo> followingCoinInfos = rankCustomRepository.findFollowingCoinInfo();
 
 		// 랭킹 업데이트
 		followingCoinInfos.forEach(info -> {
@@ -88,6 +92,10 @@ public class RankService {
 
 	// 코인 자산 계산
 	private Map<Long, Long> calculateHoldingCoins(Map<String, Long> tickerPrice) {
+		if (CollectionUtils.isEmpty(tickerPrice)) {
+			return Collections.emptyMap();
+		}
+
 		List<HoldingCoinInfo> holdingCoinInfos = rankCustomRepository.findHoldingCoinInfo();
 		return holdingCoinInfos.stream()
 			.collect(Collectors.toMap(

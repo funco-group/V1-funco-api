@@ -53,7 +53,7 @@ public class RedisConfig {
 		RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
 		redisTemplate.setConnectionFactory(createLettuceConnectionFactory(TOKEN.ordinal()));
 		redisTemplate.setKeySerializer(new StringRedisSerializer());
-		
+
 		// Hash Key, Value String 타입 직렬화
 		redisTemplate.setHashKeySerializer(new StringRedisSerializer());
 		redisTemplate.setHashValueSerializer(new StringRedisSerializer());
@@ -62,10 +62,10 @@ public class RedisConfig {
 
 	// 관심있는 코인 템플릿
 	@Bean
-	public RedisTemplate<Long, Object> favoriteCoinRedisTemplate() {
-		RedisTemplate<Long, Object> redisTemplate = new RedisTemplate<>();
+	public RedisTemplate<String, Object> favoriteCoinRedisTemplate() {
+		RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
 		redisTemplate.setConnectionFactory(createLettuceConnectionFactory(FAVORITE_COIN.ordinal()));
-		redisTemplate.setValueSerializer(new StringRedisSerializer());
+		redisTemplate.setKeySerializer(new StringRedisSerializer());
 		// Value 직렬화를 위한 ObjectMapper 설정
 		ObjectMapper objectMapper = new ObjectMapper();
 		objectMapper.registerModule(new JavaTimeModule());
@@ -75,6 +75,16 @@ public class RedisConfig {
 		Jackson2JsonRedisSerializer<FavoriteCoinInfo> jackson2JsonRedisSerializer =
 			new Jackson2JsonRedisSerializer<>(objectMapper, FavoriteCoinInfo.class);
 		redisTemplate.setValueSerializer(jackson2JsonRedisSerializer);
+		return redisTemplate;
+	}
+
+	// 관심코인 zset 템플릿
+	@Bean
+	public RedisTemplate<String, Object> favoriteCoinZSetRedisTemplate() {
+		RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
+		redisTemplate.setConnectionFactory(createLettuceConnectionFactory(FAVORITE_COIN.ordinal()));
+		redisTemplate.setKeySerializer(new StringRedisSerializer());
+		redisTemplate.setValueSerializer(new StringRedisSerializer()); // ZSet 값에 대한 직렬화
 		return redisTemplate;
 	}
 

@@ -26,17 +26,16 @@ public class RankCustomRepositoryImpl implements RankCustomRepository {
 	@Override
 	public List<HoldingCoinInfo> findHoldingCoinInfo() {
 		return jpaQueryFactory.select(
-				new QHoldingCoinInfo(holdingCoin.member.id, holdingCoin.ticker, holdingCoin.volume.sum()
+				new QHoldingCoinInfo(holdingCoin.member.id, holdingCoin.ticker, holdingCoin.volume
 				)
 			)
 			.from(holdingCoin)
-			.where(holdingCoin.volume.ne(0.0))
 			.groupBy(holdingCoin.member.id, holdingCoin.ticker)
 			.fetch();
 	}
 
 	@Override
-	public List<FollowingCoinInfo> findFollowingCoin() {
+	public List<FollowingCoinInfo> findFollowingCoinInfo() {
 		return jpaQueryFactory.select(
 				new QFollowingCoinInfo(new QMemberInfo(member.id, member.nickname,
 					member.profileUrl), member.cash, follow.investment.sum().coalesce(0L))
@@ -55,7 +54,6 @@ public class RankCustomRepositoryImpl implements RankCustomRepository {
 				holdingCoin.ticker
 			)
 			.from(holdingCoin)
-			.where(holdingCoin.volume.ne(0.0))
 			.distinct()
 			.fetch();
 	}

@@ -14,4 +14,6 @@ public interface FollowRepository extends JpaRepository<Follow, Long>, QueryDslF
 
 	@EntityGraph(attributePaths = {"following"})
 	List<Follow> findAllByFollowingAndSettled(Member following, Boolean settled);
+
+	List<Follow> findAllByFollowerAndSettledFalse(Member follower);
 }

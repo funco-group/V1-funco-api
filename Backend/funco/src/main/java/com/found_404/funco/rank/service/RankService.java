@@ -41,16 +41,16 @@ public class RankService {
 
 		// 페이징 처리된 결과 가져오기
 		Set<ZSetOperations.TypedTuple<Object>> typedTuples = zSetOperations.reverseRangeWithScores(zSetName,
-			pageable.getOffset() + (pageable.getOffset() == 0 ? 0 : 3),
-			pageable.getOffset() + pageable.getPageSize() + (pageable.getOffset() == 0 ? 3 : 0) - 1);
+			pageable.getOffset(),
+			pageable.getOffset() + pageable.getPageSize() - 1);
 
 		// 가져온 결과를 RankResponse 객체로 변환
-		List<RankResponse> rankResponses = RankResponse.from(typedTuples);
+		List<RankResponse> rankResponses = RankResponse.from(typedTuples, pageable.getOffset());
 		// 전체 결과 수 가져오기
 		Long totalElements = zSetOperations.zCard(zSetName);
 
 		// Page 객체 생성
-		return new PageImpl<>(rankResponses, pageable, totalElements - 3);
+		return new PageImpl<>(rankResponses, pageable, totalElements);
 	}
 
 	// 배치 전 - 스케줄링 돌릴 메서드

@@ -5,7 +5,6 @@ import com.found_404.funco.follow.domain.FollowingCoin;
 import com.found_404.funco.follow.domain.repository.FollowRepository;
 import com.found_404.funco.follow.domain.repository.FollowingCoinRepository;
 import com.found_404.funco.member.domain.Member;
-import com.found_404.funco.member.domain.repository.MemberRepository;
 import com.found_404.funco.trade.domain.HoldingCoin;
 import com.found_404.funco.trade.domain.Trade;
 import com.found_404.funco.trade.domain.repository.HoldingCoinRepository;
@@ -18,10 +17,8 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -99,7 +96,6 @@ public class FollowTradeService {
                 .price(trade.getPrice())
                 .ticker(trade.getTicker())
                 .status(Boolean.TRUE)
-                .tradedAt(trade.getTradedAt())
                 .member(follow.getFollower())
                 .volume(volume) // 비율
                 .orderCash(orderCash)

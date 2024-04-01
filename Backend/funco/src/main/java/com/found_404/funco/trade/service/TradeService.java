@@ -2,6 +2,7 @@ package com.found_404.funco.trade.service;
 
 import com.found_404.funco.follow.service.FollowTradeService;
 import com.found_404.funco.member.domain.Member;
+import com.found_404.funco.member.domain.repository.MemberRepository;
 import com.found_404.funco.trade.cryptoPrice.CryptoPrice;
 import com.found_404.funco.trade.domain.HoldingCoin;
 import com.found_404.funco.trade.domain.OpenTrade;
@@ -39,6 +40,7 @@ public class TradeService {
 
     private final CryptoPrice cryptoPrice;
     private final FollowTradeService followTradeService;
+    private final MemberRepository memberRepository;
 
 
     private long getPriceByTicker(String ticker) {
@@ -52,6 +54,7 @@ public class TradeService {
 
         // orderCash <= 자산 check, member 원화 감소
         member.decreaseCash(orderCash);
+        memberRepository.save(member);
 
         // 구매 개수
         double volume = divide(orderCash, currentPrice, VOLUME_SCALE);
@@ -102,6 +105,7 @@ public class TradeService {
         // 수수료 제외한 잔액 증가
         long orderCash = (long) (multiple(currentPrice, volume, NORMAL_SCALE));
         member.increaseCash(orderCash);
+        memberRepository.save(member);
 
         // 코인 감소
         HoldingCoin holdingCoin = holdingCoinRepository.findByMemberAndTicker(member, ticker)
@@ -173,6 +177,7 @@ public class TradeService {
         // 돈 또는 코인 회수
         if (openTrade.getTradeType().equals(TradeType.BUY)) {
             member.recoverCash(openTrade.getOrderCash());
+            memberRepository.save(member);
         } else {
             HoldingCoin holdingCoin = holdingCoinRepository.findByMemberAndTicker(openTrade.getMember(), openTrade.getTicker())
                     .orElseThrow(() -> new TradeException(INSUFFICIENT_COINS));
@@ -185,6 +190,7 @@ public class TradeService {
         // 돈 확인 및 감소
         long orderCash = (long) (price * volume);
         member.decreaseCash(orderCash);
+        memberRepository.save(member);
 
         // 미체결 거래 등록
         OpenTrade openTrade = openTradeRepository.save(OpenTrade.builder()

@@ -2,6 +2,7 @@ package com.found_404.funco.follow.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -16,6 +17,7 @@ import com.found_404.funco.follow.dto.response.FollowerListResponse;
 import com.found_404.funco.follow.dto.response.FollowingListResponse;
 import com.found_404.funco.follow.service.FollowService;
 import com.found_404.funco.global.util.AuthMemberId;
+import com.found_404.funco.member.domain.Member;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -40,9 +42,9 @@ public class FollowController {
 	}
 
 	@GetMapping("/following")
-	public ResponseEntity<FollowingListResponse> getFollowingList(@AuthMemberId Long memberId,
+	public ResponseEntity<FollowingListResponse> getFollowingList(@AuthenticationPrincipal Member member,
 		@RequestParam(required = false) Long lastFollowId) {
-		return ResponseEntity.status(HttpStatus.OK).body(followService.readFollowingList(memberId, lastFollowId));
+		return ResponseEntity.status(HttpStatus.OK).body(followService.readFollowingList(member, lastFollowId));
 	}
 
 	@GetMapping("/follower")

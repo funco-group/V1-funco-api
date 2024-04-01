@@ -16,6 +16,7 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -68,8 +69,6 @@ public class UpbitWebSocketListener extends WebSocketListener {
         CryptoJson cryptoJson = httpClientUtil.parseJsonToClass(response, CryptoJson.class)
                 .orElseThrow(() -> new TradeException(PRICE_CONNECTION_FAIL));
 
-        System.out.println("websocket receive => coin : "+ cryptoJson.getCode() + " price : " + cryptoJson.getTradePrice());
-
         priceUpdate(cryptoJson.getCode(), cryptoJson.getTradePrice());
     }
 
@@ -79,8 +78,6 @@ public class UpbitWebSocketListener extends WebSocketListener {
         }
         cryptoPrices.put(code, tradePrice);
 
-        System.out.println("가격 업데이트됨!" + code + " ," + tradePrice);
-
         processTrade(code, tradePrice);
     }
 
@@ -88,23 +85,16 @@ public class UpbitWebSocketListener extends WebSocketListener {
         List<Long> concludingTradeIds = new ArrayList<>();
 
         PriorityQueue<ProcessingTrade> buyQueue = buyTrades.get(code);
-        System.out.println("buy queue -> "+ buyTrades.get(code).size());
-
-        System.out.println("제일 비싼 산다 : " +(buyQueue.isEmpty() ? "없음" : buyQueue.peek().price));
-        System.out.println("현재 가격 : " + tradePrice);
-
         while (!buyQueue.isEmpty() && buyQueue.peek().price >= tradePrice) {
             concludingTradeIds.add(buyQueue.poll().id);
         }
 
         PriorityQueue<ProcessingTrade> sellQueue = sellTrades.get(code);
-        System.out.println("sell queue -> "+ sellTrades.get(code).size());
-
         while (!sellQueue.isEmpty() && sellQueue.peek().price <= tradePrice) {
             concludingTradeIds.add(sellQueue.poll().id);
         }
 
-        System.out.println("뽑은 처리할 거래 : " + concludingTradeIds);
+        log.info("{} => buy: {}, sell: {}, price:{} ,체결: {}", code, buyQueue.size(), sellQueue.size(), tradePrice, concludingTradeIds.size());
 
         // 거래 처리
         if (!concludingTradeIds.isEmpty()) {
@@ -112,7 +102,6 @@ public class UpbitWebSocketListener extends WebSocketListener {
             openTradeService.processTrade(concludingTradeIds, code, sizeSum <= 0);
         }
     }
-
 
     @Override
     public void onFailure(@NotNull WebSocket webSocket, Throwable t, Response response) {
@@ -122,7 +111,6 @@ public class UpbitWebSocketListener extends WebSocketListener {
     @Override
     public void onClosing(WebSocket webSocket, int code, @NotNull String reason) {
         webSocket.close(1000, null);
-        System.out.println("Closing : " + code + " / " + reason);
     }
 
     @Override

@@ -1,8 +1,6 @@
 package com.found_404.funco.follow.domain;
 
 import com.found_404.funco.global.util.CommissionUtil;
-import com.found_404.funco.global.util.DecimalCalculator;
-import com.found_404.funco.global.util.ScaleType;
 import com.found_404.funco.trade.exception.TradeException;
 import org.hibernate.annotations.Comment;
 
@@ -50,10 +48,6 @@ public class FollowingCoin extends BaseEntity {
 		this.ticker = ticker;
 		this.volume = volume;
 		this.averagePrice = averagePrice;
-	}
-
-	public void sellFollowingCoin() {
-		this.volume = 0.0;
 	}
 
 	public void increaseVolume(double volume, Long price) {

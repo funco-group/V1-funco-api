@@ -8,6 +8,7 @@ import com.found_404.funco.statistics.domain.repository.DailyStatisticsRepositor
 import com.found_404.funco.statistics.domain.repository.MonthlyStatisticsRepository;
 import com.found_404.funco.statistics.dto.response.DailyStatisticsResponse;
 import com.found_404.funco.statistics.dto.response.MonthlyStatisticsResponse;
+import com.found_404.funco.statistics.dto.response.StartDateResponse;
 
 import lombok.RequiredArgsConstructor;
 
@@ -24,5 +25,9 @@ public class StatisticsService {
 
 	public List<MonthlyStatisticsResponse> readMonthlyStatistics(Long memberId, Integer year) {
 		return monthlyStatisticsRepository.findMonthlyStatisticsByYear(memberId, year);
+	}
+
+	public StartDateResponse readStartDate(Long memberId) {
+		return dailyStatisticsRepository.findStartDateByMemberId(memberId);
 	}
 }

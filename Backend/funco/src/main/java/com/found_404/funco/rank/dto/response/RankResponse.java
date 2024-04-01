@@ -21,7 +21,7 @@ public record RankResponse(
 	Long totalAsset,
 	Long followingAsset
 ) {
-	public static List<RankResponse> from(Set<ZSetOperations.TypedTuple<Object>> typedTuples) {
+	public static List<RankResponse> from(Set<ZSetOperations.TypedTuple<Object>> typedTuples, Long offset) {
 		if (CollectionUtils.isEmpty(typedTuples)) {
 			return Collections.emptyList();
 		}
@@ -30,7 +30,7 @@ public record RankResponse(
 			.map(tuple -> {
 				RankResponse rankResponse = (RankResponse)tuple.getValue();
 				return RankResponse.builder()
-					.rank(Long.valueOf(index.incrementAndGet())) // 인덱스를 증가시키고 rank에 저장
+					.rank(offset + Long.valueOf(index.incrementAndGet())) // 인덱스를 증가시키고 rank에 저장
 					.member(rankResponse.member())
 					.returnRate(rankResponse.returnRate())
 					.totalAsset(rankResponse.totalAsset())

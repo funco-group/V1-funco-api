@@ -27,7 +27,7 @@ public class UpbitCryptoPrice implements CryptoPrice {
     private final UpbitWebSocketListener listener;
     private final HttpClientUtil httpClientUtil;
     private WebSocket webSocket;
-    private String DEFAULT_TICKER = "KRW-BTC";
+    private final String DEFAULT_TICKER = "KRW-BTC";
 
     @Autowired
     public UpbitCryptoPrice(UpbitWebSocketListener listener, HttpClientUtil httpClientUtil) {
@@ -42,6 +42,8 @@ public class UpbitCryptoPrice implements CryptoPrice {
         this.webSocket = httpClientUtil.getWebSocket(request, listener);
 
         addTicker(DEFAULT_TICKER);
+        // 웹소켓 연결이 끊어지지 않도록 사지지 않을 더미 거래 데이터 등록
+        listener.addTrade(TradeType.BUY, DEFAULT_TICKER, 0L, 0L);
     }
 
     @Override

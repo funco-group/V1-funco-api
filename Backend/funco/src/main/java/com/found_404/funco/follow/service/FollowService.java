@@ -1,6 +1,8 @@
 package com.found_404.funco.follow.service;
 
 import static com.found_404.funco.follow.exception.FollowErrorCode.*;
+import static com.found_404.funco.global.util.DecimalCalculator.*;
+import static com.found_404.funco.global.util.ScaleType.*;
 import static com.found_404.funco.member.exception.MemberErrorCode.*;
 
 import java.time.LocalDateTime;
@@ -16,6 +18,7 @@ import com.found_404.funco.follow.domain.Follow;
 import com.found_404.funco.follow.domain.FollowingCoin;
 import com.found_404.funco.follow.domain.repository.FollowRepository;
 import com.found_404.funco.follow.domain.repository.FollowingCoinRepository;
+import com.found_404.funco.follow.dto.HoldingCoinsDto;
 import com.found_404.funco.follow.dto.SliceFollowingInfo;
 import com.found_404.funco.follow.dto.request.FollowingRequest;
 import com.found_404.funco.follow.dto.response.FollowerListResponse;
@@ -49,6 +52,7 @@ public class FollowService {
 
 	private static final double FOLLOW_FEE = 0.03;
 	private static final int PAGE_SIZE = 10;
+	private static final long PERCENT = 100L;
 
 	@Transactional
 	public void createFollow(FollowingRequest request, Long memberId) {
@@ -60,6 +64,7 @@ public class FollowService {
 
 		// 부모 팔로우 멤버
 		Member followingMember = findMemberById(request.memberId());
+
 		// 자식 팔로우 멤버
 		Member followerMember = findMemberById(memberId);
 
@@ -92,20 +97,21 @@ public class FollowService {
 			.collect(
 				Collectors.toMap(
 					HoldingCoin::getTicker,
-					holdingCoin -> (long)(followingCryptoPriceMap.get(holdingCoin.getTicker())
-						* holdingCoin.getVolume())));
-		// 총 보유 자산
+					holdingCoin -> (long)multiple(
+						followingCryptoPriceMap.get(holdingCoin.getTicker()), holdingCoin.getVolume(), CASH_SCALE)));
+
+		// 총 보유 자산 = 부모의 보유 코인들 + 부모의 가용 현금
 		long asset = followingCryptoToAssetMap.values().stream()
 			.mapToLong(Long::longValue)
 			.sum() + followingCash;
 
-		// 보유 자산의 비율
+		// 부모의 보유 자산의 비율 =
 		Map<String, Double> assetRatioMap = followingCryptoToAssetMap.entrySet().stream()
 			.collect(Collectors.toMap(Map.Entry::getKey,
-				entry -> (double)Math.round((double)entry.getValue() / asset * 100) / 100));
+				entry -> divide(entry.getValue(), asset, NORMAL_SCALE)));
 
-		// 가용 현금
-		Long followerCash = (long)(investment * ((double)Math.round((double)followingCash / asset * 100) / 100));
+		// 팔로우의 가용 현금 = 부모의
+		Long followerCash = (long)divide(followingCash, asset, CASH_SCALE);
 
 		// 팔로우 생성
 		Follow follow = Follow.builder()
@@ -117,19 +123,26 @@ public class FollowService {
 			.build();
 
 		// 팔로잉 코인, 거래 내역 생성
+		/**
+		 * 팔로잉 코인 갯수 = (초기 투자금 * 부모의 전체 자산에 대해 해당 코인이 차지하는 비율) / 해당 코인의 현재 시세
+		 * 주문 가격 = 초기 투자금 * 부모의 해당 코인의 전체 자산에 대한 비율 => 부모의 코인 비율만큼 사는 것이기 때문
+		 * */
 		Map<FollowingCoin, Trade> followingCoinTradeMap = assetRatioMap.entrySet().stream()
 			.collect(Collectors.toMap(entry -> FollowingCoin.builder()
 					.follow(follow)
 					.ticker(entry.getKey())
-					.volume((investment * entry.getValue()) / followingCryptoPriceMap.get(entry.getKey()))
+					.volume(divide(multiple(investment, entry.getValue(), NORMAL_SCALE),
+						followingCryptoPriceMap.get(entry.getKey()), VOLUME_SCALE))
 					.averagePrice(followingCryptoPriceMap.get(entry.getKey()))
 					.build(),
 				entry -> Trade.builder()
 					.member(followerMember)
 					.ticker(entry.getKey())
 					.tradeType(TradeType.BUY)
-					.volume((investment * entry.getValue()) / followingCryptoPriceMap.get(entry.getKey()))
-					.orderCash((long)(investment * entry.getValue()))
+					.volume(
+						divide(multiple(investment, entry.getValue(), NORMAL_SCALE),
+							followingCryptoPriceMap.get(entry.getKey()), VOLUME_SCALE))
+					.orderCash((long)multiple(investment, entry.getValue(), CASH_SCALE))
 					.price(followingCryptoPriceMap.get(entry.getKey()))
 					.status(Boolean.TRUE)
 					.build()));
@@ -166,7 +179,9 @@ public class FollowService {
 				.ticker(followingCoin.getTicker())
 				.tradeType(TradeType.SELL)
 				.volume(followingCoin.getVolume())
-				.orderCash((long)(followingCoin.getVolume() * followingCryptoPriceMap.get(followingCoin.getTicker())))
+				.orderCash(
+					(long)multiple(followingCryptoPriceMap.get(followingCoin.getTicker()), followingCoin.getVolume(),
+						CASH_SCALE))
 				.price(followingCryptoPriceMap.get(followingCoin.getTicker()))
 				.status(Boolean.TRUE)
 				.build())
@@ -174,21 +189,22 @@ public class FollowService {
 
 		// 팔로잉 코인들 가격
 		long followAsset = followingCoins.stream()
-			.mapToLong(followingCoin -> {
-				long asset = (long)(followingCoin.getVolume() * followingCryptoPriceMap.get(followingCoin.getTicker()));
-				followingCoin.sellFollowingCoin();
-				return asset;
-			}).sum();
+			.mapToLong(followingCoin ->
+				(long)multiple(followingCryptoPriceMap.get(followingCoin.getTicker()), followingCoin.getVolume(),
+					CASH_SCALE))
+			.sum();
 
 		// 수익금
 		long proceed = followAsset + follow.getCash();
 
 		// 수익률
-		double returnRate = (double)(proceed - follow.getInvestment()) / follow.getInvestment();
-		// Math.round(((double)(proceed - follow.getInvestment()) / follow.getInvestment()) * 100.0) / 100.0;
+		double returnRate = multiple(PERCENT,
+			divide(proceed - follow.getInvestment(), follow.getInvestment(), NORMAL_SCALE), RETURN_RATE_SCALE);
 
 		// 수수료
-		long commission = proceed - follow.getInvestment() > 0 ? (long)(followAsset * FOLLOW_FEE) : 0;
+		long commission =
+			proceed - follow.getInvestment() > 0 ?
+				(long)multiple(proceed - follow.getInvestment(), FOLLOW_FEE, CASH_SCALE) : 0;
 
 		// 정산 금액
 		long settlement = proceed - commission;
@@ -210,15 +226,31 @@ public class FollowService {
 		}
 
 		// 데이터 insert
+		followingCoinRepository.deleteAll(followingCoins);
 		tradeRepository.saveAll(trades);
 	}
 
 	public FollowingListResponse readFollowingList(Long memberId, Long lastFollowId) {
-		Long totalAsset = cryptoPrice.getTickerPriceMap(followRepository.findHoldingCoin(memberId)).values().stream()
-			.mapToLong(Long::longValue)
+
+		// 유저의 보유 코인 목록
+		List<HoldingCoinsDto> holdingCoins = followRepository.findHoldingCoin(memberId);
+
+		// 유저의 보유 코인 목록별 현재 시세
+		Map<String, Long> tickerPriceMap = cryptoPrice.getTickerPriceMap(
+			holdingCoins.stream()
+				.map(HoldingCoinsDto::ticker)
+				.collect(Collectors.toList()));
+
+		// 유저의 보유 코인들의 현재 총 가격
+		Long totalAsset = holdingCoins.stream()
+			.mapToLong(holdingCoin -> (long)multiple(tickerPriceMap.get(holdingCoin.ticker()), holdingCoin.volume(),
+				CASH_SCALE))
 			.sum();
+
+		// 유저의 팔로우 자산 목록들
 		SliceFollowingInfo sliceFollowingInfo = followRepository.findFollowingInfoListByMemberId(memberId,
 			lastFollowId, PAGE_SIZE);
+
 		return FollowingListResponse.builder()
 			.totalAsset(totalAsset)
 			.followings(sliceFollowingInfo.followingInfoList())

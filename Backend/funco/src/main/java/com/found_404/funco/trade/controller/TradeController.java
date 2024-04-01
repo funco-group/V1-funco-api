@@ -1,5 +1,6 @@
 package com.found_404.funco.trade.controller;
 
+import com.found_404.funco.member.domain.Member;
 import com.found_404.funco.trade.dto.OpenTradeDto;
 import com.found_404.funco.trade.dto.TradeDto;
 import com.found_404.funco.trade.dto.request.*;
@@ -10,6 +11,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,68 +24,66 @@ public class TradeController {
 
     // 시장가 매수
     @PostMapping("/market-buying")
-    public ResponseEntity<MarketTradeResponse> marketBuying(@RequestBody @Valid MarketBuyingRequest request) {
-        final long memberId = 1L;
+    public ResponseEntity<MarketTradeResponse> marketBuying(@AuthenticationPrincipal Member member,
+                                                            @RequestBody @Valid MarketBuyingRequest request) {
 
-        return ResponseEntity.ok(tradeService.marketBuying(memberId, request.ticker(), request.orderCash()));
+        return ResponseEntity.ok(tradeService.marketBuying(member, request.ticker(), request.orderCash()));
     }
 
     // 시장가 매도
     @PostMapping("/market-selling")
-    public ResponseEntity<MarketTradeResponse> marketSelling(@RequestBody @Valid MarketSellingRequest request) {
-        final long memberId = 1L;
+    public ResponseEntity<MarketTradeResponse> marketSelling(@AuthenticationPrincipal Member member,
+                                                             @RequestBody @Valid MarketSellingRequest request) {
 
-        return ResponseEntity.ok(tradeService.marketSelling(memberId, request.ticker(), request.volume()));
+        return ResponseEntity.ok(tradeService.marketSelling(member, request.ticker(), request.volume()));
     }
 
     // 지정가 매수
     @PostMapping("/limit-buying")
-    public ResponseEntity<?> limitBuying(@RequestBody @Valid LimitBuyingRequest request) {
-        final long memberId = 1L;
+    public ResponseEntity<?> limitBuying(@AuthenticationPrincipal Member member,
+                                         @RequestBody @Valid LimitBuyingRequest request) {
 
-        tradeService.limitBuying(memberId, request.ticker(), request.price(), request.volume());
+        tradeService.limitBuying(member, request.ticker(), request.price(), request.volume());
         return ResponseEntity.ok().build();
     }
 
     // 지정가 매도
     @PostMapping("/limit-selling")
-    public ResponseEntity<?> limitSelling(@RequestBody @Valid LimitSellingRequest request) {
-        final long memberId = 1L;
+    public ResponseEntity<?> limitSelling(@AuthenticationPrincipal Member member,
+                                          @RequestBody @Valid LimitSellingRequest request) {
 
-        tradeService.limitSelling(memberId, request.ticker(), request.price(), request.volume());
+        tradeService.limitSelling(member, request.ticker(), request.price(), request.volume());
         return ResponseEntity.ok().build();
     }
 
     // 보유 중인 코인 조회
     @GetMapping("/holding")
-    public ResponseEntity<HoldingCoinsResponse> getHoldingCoin() {
-        final Long memberId = 1L;
-
-        return ResponseEntity.ok(tradeService.getHoldingCoins(memberId));
+    public ResponseEntity<HoldingCoinsResponse> getHoldingCoin(@AuthenticationPrincipal Member member) {
+        return ResponseEntity.ok(tradeService.getHoldingCoins(member));
     }
 
     // 체결 코인 거래 내역, param ticker , follow 여부 필수
     @GetMapping("/orders")
-    public ResponseEntity<List<TradeDto>> getOrders(Pageable pageable, TradeRequest tradeRequest) {
-        final Long memberId = 1L;
+    public ResponseEntity<List<TradeDto>> getOrders(@AuthenticationPrincipal Member member,
+                                                    Pageable pageable, TradeRequest tradeRequest) {
 
-        return ResponseEntity.ok(tradeService.getOrders(memberId, tradeRequest.ticker(), tradeRequest.follow(), pageable));
+        return ResponseEntity.ok(tradeService.getOrders(member, tradeRequest.ticker(), tradeRequest.follow(), pageable));
     }
 
     // 미체결 거래 내역 보기
     @GetMapping("/open-orders")
-    public ResponseEntity<List<OpenTradeDto>> getOpenOrders(Pageable pageable, TradeRequest tradeRequest) {
-        final Long memberId = 1L;
+    public ResponseEntity<List<OpenTradeDto>> getOpenOrders(@AuthenticationPrincipal Member member,
+                                                            Pageable pageable, TradeRequest tradeRequest) {
 
-        return ResponseEntity.ok(tradeService.getOpenOrders(memberId, tradeRequest.follow(), tradeRequest.ticker(), pageable));
+        return ResponseEntity.ok(tradeService.getOpenOrders(member, tradeRequest.follow(), tradeRequest.ticker(), pageable));
     }
 
     // 미체결 거래 취소
     @DeleteMapping("/open-orders/{id}")
-    public ResponseEntity<?> getOpenOrders(@PathVariable Long id) {
-        final Long memberId = 1L;
+    public ResponseEntity<?> getOpenOrders(@AuthenticationPrincipal Member member,
+                                           @PathVariable Long id) {
 
-        tradeService.deleteOpenTrade(memberId, id);
+        tradeService.deleteOpenTrade(member, id);
         return ResponseEntity.ok().build();
     }
 

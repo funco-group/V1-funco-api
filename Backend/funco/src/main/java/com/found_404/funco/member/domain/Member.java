@@ -1,5 +1,7 @@
 package com.found_404.funco.member.domain;
 
+import com.found_404.funco.global.util.DecimalCalculator;
+import com.found_404.funco.global.util.ScaleType;
 import org.hibernate.annotations.Comment;
 
 import com.found_404.funco.auth.dto.OauthId;
@@ -70,7 +72,7 @@ public class Member extends BaseEntity {
 	}
 
 	public long getCashWithCommission(long orderCash) {
-		return orderCash - (long)(orderCash * COMMISSION);
+		return orderCash - (long) (DecimalCalculator.multiple(orderCash, COMMISSION, ScaleType.NORMAL_SCALE));
 	}
 
 	public void recoverCash(long cash) {

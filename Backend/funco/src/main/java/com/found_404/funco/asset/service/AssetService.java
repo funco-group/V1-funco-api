@@ -6,6 +6,7 @@ import com.found_404.funco.asset.dto.response.TotalAssetResponse;
 import com.found_404.funco.follow.domain.Follow;
 import com.found_404.funco.follow.domain.repository.FollowRepository;
 import com.found_404.funco.member.domain.Member;
+import com.found_404.funco.asset.dto.response.CryptoResponse;
 import com.found_404.funco.member.domain.repository.MemberRepository;
 import com.found_404.funco.member.exception.MemberException;
 import com.found_404.funco.trade.domain.HoldingCoin;
@@ -14,6 +15,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+
+import java.util.Optional;
 
 import static com.found_404.funco.member.exception.MemberErrorCode.NOT_FOUND_MEMBER;
 
@@ -26,8 +29,11 @@ public class AssetService {
     private final HoldingCoinRepository holdingCoinRepository;
 
     public CashResponse getMemberCash(long memberId) {
-        return new CashResponse(memberRepository.findById(memberId).orElseThrow(() -> new MemberException(NOT_FOUND_MEMBER))
-                .getCash());
+        return new CashResponse(getMember(memberId).getCash());
+    }
+
+    private Member getMember(long memberId) {
+        return memberRepository.findById(memberId).orElseThrow(() -> new MemberException(NOT_FOUND_MEMBER));
     }
 
     public TotalAssetResponse getMemberTotalAsset(long memberId) {
@@ -61,5 +67,10 @@ public class AssetService {
                 .holdingCoinInfos(memberHoldingCoinInfos)
                 .build();
     }
+    public CryptoResponse getCrypto(long memberId, String ticker) {
+        Member member = getMember(memberId);
 
+        Optional<HoldingCoin> optionalHoldingCoin = holdingCoinRepository.findByMemberAndTicker(member, ticker);
+        return new CryptoResponse(optionalHoldingCoin.isPresent() ? optionalHoldingCoin.get().getVolume() : 0);
+    }
 }

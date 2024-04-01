@@ -1,6 +1,8 @@
 package com.found_404.funco.follow.domain;
 
 import com.found_404.funco.global.util.CommissionUtil;
+import com.found_404.funco.global.util.DecimalCalculator;
+import com.found_404.funco.global.util.ScaleType;
 import com.found_404.funco.trade.exception.TradeException;
 import org.hibernate.annotations.Comment;
 
@@ -16,6 +18,9 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import static com.found_404.funco.global.util.DecimalCalculator.*;
+import static com.found_404.funco.global.util.ScaleType.NORMAL_SCALE;
+import static com.found_404.funco.global.util.ScaleType.VOLUME_SCALE;
 import static com.found_404.funco.trade.exception.TradeErrorCode.INSUFFICIENT_COINS;
 
 @Entity
@@ -52,7 +57,8 @@ public class FollowingCoin extends BaseEntity {
 	}
 
 	public void increaseVolume(double volume, Long price) {
-		this.averagePrice = (long) (((this.volume * this.averagePrice) + (volume * price)) / (volume + this.volume));
+		this.averagePrice = (long) divide((multiple(this.volume, this.averagePrice, NORMAL_SCALE) + multiple(volume, price, NORMAL_SCALE))
+				, plus(volume, this.volume, VOLUME_SCALE), NORMAL_SCALE);
 		this.volume += CommissionUtil.getVolumeWithoutCommission(volume);
 	}
 
@@ -60,6 +66,6 @@ public class FollowingCoin extends BaseEntity {
 		if (this.volume < volume) {
 			throw new TradeException(INSUFFICIENT_COINS);
 		}
-		this.volume -= volume;
+		this.volume = minus(this.volume, volume, VOLUME_SCALE);
 	}
 }

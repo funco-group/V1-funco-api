@@ -1,7 +1,8 @@
 package com.found_404.funco.global.util;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
+
+import static java.math.RoundingMode.*;
 
 public class DecimalCalculator {
 
@@ -32,7 +33,7 @@ public class DecimalCalculator {
         BigDecimal bdb = BigDecimal.valueOf(b);
 
         return bda.add(bdb)
-                .setScale(scaleType.getScale(), RoundingMode.DOWN)
+                .setScale(scaleType.getScale(), DOWN)
                 .doubleValue();
     }
 
@@ -41,7 +42,7 @@ public class DecimalCalculator {
         BigDecimal bdb = BigDecimal.valueOf(b);
 
         return bda.subtract(bdb)
-                .setScale(scaleType.getScale(), RoundingMode.DOWN)
+                .setScale(scaleType.getScale(), DOWN)
                 .doubleValue();
     }
 
@@ -50,7 +51,7 @@ public class DecimalCalculator {
         BigDecimal bdb = BigDecimal.valueOf(b);
 
         return bda.multiply(bdb)
-                .setScale(scale, RoundingMode.DOWN)
+                .setScale(scale, DOWN)
                 .doubleValue();
     }
 
@@ -58,8 +59,8 @@ public class DecimalCalculator {
         BigDecimal bda = BigDecimal.valueOf(a);
         BigDecimal bdb = BigDecimal.valueOf(b);
 
-        return bda.divide(bdb,RoundingMode.DOWN)
-                .setScale(scale, RoundingMode.DOWN)
+        return bda.divide(bdb, scale, DOWN)
+                .setScale(scale, DOWN)
                 .doubleValue();
     }
 

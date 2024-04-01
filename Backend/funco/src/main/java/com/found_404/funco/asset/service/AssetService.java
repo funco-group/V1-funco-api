@@ -1,8 +1,15 @@
 package com.found_404.funco.asset.service;
 
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
+import com.found_404.funco.asset.dto.response.HistoryResponse;
+import com.found_404.funco.asset.dto.type.AssetType;
+import com.found_404.funco.trade.domain.Trade;
+import com.found_404.funco.trade.domain.repository.TradeRepository;
 import org.springframework.stereotype.Service;
 
 import com.found_404.funco.asset.dto.HoldingCoinInfo;
@@ -23,6 +30,8 @@ public class AssetService {
 
 	private final FollowRepository followRepository;
 	private final HoldingCoinRepository holdingCoinRepository;
+	private final TradeRepository tradeRepository;
+
 
 	public CashResponse getMemberCash(Member member) {
 		return new CashResponse(member.getCash());
@@ -61,4 +70,64 @@ public class AssetService {
 		Optional<HoldingCoin> optionalHoldingCoin = holdingCoinRepository.findByMemberAndTicker(member, ticker);
 		return new CryptoResponse(optionalHoldingCoin.isPresent() ? optionalHoldingCoin.get().getVolume() : 0);
 	}
+
+	public List<HistoryResponse> getMemberHistory(Member member) {
+
+		// HistoryResponse들을 담을 리스트
+		List<HistoryResponse> historyResponses = new ArrayList<>();
+
+		// 직접 투자
+		List<Trade> trades = tradeRepository.findAllByMember(member);
+		trades.forEach(trade -> {
+			HistoryResponse response = HistoryResponse.builder()
+					.date(trade.getCreatedAt())
+					.name(trade.getTicker())
+					.assetType(AssetType.COIN)
+					.tradeType(trade.getTradeType().toString())
+					.volume(trade.getVolume())
+					.orderCash(trade.getOrderCash())
+					.price(trade.getPrice())
+					.build();
+			historyResponses.add(response);
+		});
+
+		// 팔로우 투자
+		// 해당 멤버가(팔로워가) 정산한 팔로우 거래 내역
+		List<Follow> followings = followRepository.findAllByFollowerAndSettledTrue(member);
+
+		followings.forEach(following -> {
+			HistoryResponse response = HistoryResponse.builder()
+					.date(following.getSettleDate())
+					.name(following.getFollower().getNickname())
+					.assetType(AssetType.FOLLOW)
+					.tradeType("FOLLOWING")
+					.volume((double) 1)
+					.orderCash(following.getInvestment())
+					.settlement(following.getSettlement())
+					.build();
+			historyResponses.add(response);
+		});
+
+
+		// 해당 멤버를 팔로우 한 사람(팔로잉)이 정산한 거래 내역
+		List<Follow> followers = followRepository.findAllByFollowingAndSettledTrue(member);
+		followers.forEach(follower -> {
+			HistoryResponse response = HistoryResponse.builder()
+					.date(follower.getSettleDate())
+					.name(follower.getFollower().getNickname())
+					.assetType(AssetType.FOLLOW)
+					.tradeType("FOLLOWER")
+					.volume((double) 1)
+					.orderCash(follower.getInvestment())
+					.commission(follower.getCommission())
+					.build();
+			historyResponses.add(response);
+		});
+
+		// DTO가 담긴 리스트를 date 순으로 정렬
+		return historyResponses.stream()
+				.sorted(Comparator.comparing(HistoryResponse::date).reversed()).collect(Collectors.toList());
+	}
+
+
 }

@@ -106,9 +106,6 @@ public class UpbitWebSocketListener extends WebSocketListener {
     @Override
     public void onFailure(@NotNull WebSocket webSocket, Throwable t, Response response) {
         log.error("upbit websocket error! msg:{}, response:{} ", t.getMessage(), response == null ? "null" : response.message());
-        String message = "[{\"ticket\":\"resend-ticket-20240402\"},{\"type\":\"trade\",\"codes\":[\"KRW-BTC\"]},{\"format\":\"DEFAULT\"}]";
-        boolean send = webSocket.send(message);
-        log.info("resend message : {}, send status : {}", message, send);
     }
 
     @Override

@@ -77,7 +77,7 @@ public class AssetService {
 		List<HistoryResponse> historyResponses = new ArrayList<>();
 
 		// 직접 투자
-		List<Trade> trades = tradeRepository.findAllByMember(member);
+		List<Trade> trades = tradeRepository.findAllByMemberAndStatusFalse(member);
 		trades.forEach(trade -> {
 			HistoryResponse response = HistoryResponse.builder()
 					.date(trade.getCreatedAt())

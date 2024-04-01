@@ -8,5 +8,7 @@ import java.util.List;
 
 public interface TradeRepository extends JpaRepository<Trade, Long>, QueryDslTradeRepository {
 
-    List<Trade> findAllByMember(Member member);
+    // 직접 투자하는 코인만 가져옴
+    List<Trade> findAllByMemberAndStatusFalse(Member member);
+
 }

@@ -1,5 +1,6 @@
 package com.found_404.funco.asset.controller;
 
+import com.found_404.funco.asset.dto.response.HistoryResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,6 +15,8 @@ import com.found_404.funco.asset.service.AssetService;
 import com.found_404.funco.member.domain.Member;
 
 import lombok.RequiredArgsConstructor;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/v1/asset")
@@ -36,6 +39,12 @@ public class AssetController {
 	public ResponseEntity<CryptoResponse> getCrypto(@AuthenticationPrincipal Member member,
 		@PathVariable String ticker) {
 		return ResponseEntity.ok(assetService.getCrypto(member, ticker));
+	}
+
+	@GetMapping("/history")
+	public ResponseEntity<List<HistoryResponse>> getMemberHistory(@AuthenticationPrincipal Member member) {
+
+		return ResponseEntity.ok(assetService.getMemberHistory(member));
 	}
 
 }

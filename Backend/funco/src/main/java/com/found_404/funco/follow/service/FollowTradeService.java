@@ -35,6 +35,8 @@ public class FollowTradeService {
         tradeRepository.saveAll(followerList.stream()
                 .map(follow -> getTrade(trade, follow))
                 .toList());
+
+        System.out.println("비동기 함수 끝!!!!");
     }
 
     @Transactional // 내부 호출 트랜잭셔널 수정 생각
@@ -50,9 +52,12 @@ public class FollowTradeService {
             long prevCash = following.getCash() + trade.getOrderCash();
             double ratio = (double) trade.getOrderCash() / prevCash;
 
-            orderCash = (long) (follower.getCash() * ratio);
+            System.out.println("현금에서 산 비중 :" + ratio);
+
+            orderCash = (long) (follow.getCash() * ratio);
             volume = (double) orderCash / trade.getPrice();
 
+            System.out.printf("팔로워%d는 투자금액 중 현금 %d원에서 %d원을 사용할거고 %f개를 삽니다.\n",follower.getId(), follow.getCash(), orderCash, volume);
             // 돈 쓰기
             follow.decreaseCash(orderCash);
 
@@ -75,12 +80,15 @@ public class FollowTradeService {
             double prevVolume = trade.getVolume() + (followingCoin.isEmpty() ? 0 : followingCoin.get().getVolume());
             double ratio = trade.getVolume() / prevVolume;
 
+            //System.out.printf("%s가 %s를 %f 만큼 팔았다. \n", following.getNickname(), followingCoin.get().getTicker(), ratio);
+
             FollowingCoin followerCoin = followingCoinRepository.findByFollowAndTicker(follow, trade.getTicker())
                     .orElseThrow(() -> new TradeException(TradeErrorCode.INSUFFICIENT_COINS));
 
             volume = followerCoin.getVolume() * ratio;
             orderCash = Math.round(trade.getPrice() * volume);
 
+            System.out.printf("%s는 갖고있는 %f개에서 %f개를 판다. ", follower.getNickname(), followerCoin.getVolume(), volume);
             // 돈 추가
             follower.increaseCash(orderCash);
 

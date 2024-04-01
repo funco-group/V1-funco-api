@@ -94,7 +94,7 @@ public class UpbitWebSocketListener extends WebSocketListener {
             concludingTradeIds.add(sellQueue.poll().id);
         }
 
-        log.info("[{}] {} => buy: {}, sell: {}, price:{} ,체결: {}", LocalDateTime.now(), code, buyQueue.size(), sellQueue.size(), tradePrice, concludingTradeIds.size());
+        log.info("{} => buy: {}, sell: {}, price:{} ,체결: {}", code, buyQueue.size(), sellQueue.size(), tradePrice, concludingTradeIds.size());
 
         // 거래 처리
         if (!concludingTradeIds.isEmpty()) {
@@ -103,16 +103,17 @@ public class UpbitWebSocketListener extends WebSocketListener {
         }
     }
 
-
     @Override
     public void onFailure(@NotNull WebSocket webSocket, Throwable t, Response response) {
-        log.error("[{}] upbit websocket error! msg:{}, response:{} ", LocalDateTime.now(), t.getMessage(), response == null ? "null" : response.message());
+        log.error("upbit websocket error! msg:{}, response:{} ", t.getMessage(), response == null ? "null" : response.message());
+        String message = "[{\"ticket\":\"resend-ticket-20240402\"},{\"type\":\"trade\",\"codes\":[\"KRW-BTC\"]},{\"format\":\"DEFAULT\"}]";
+        boolean send = webSocket.send(message);
+        log.info("resend message : {}, send status : {}", message, send);
     }
 
     @Override
     public void onClosing(WebSocket webSocket, int code, @NotNull String reason) {
         webSocket.close(1000, null);
-        System.out.println("Closing : " + code + " / " + reason);
     }
 
     @Override

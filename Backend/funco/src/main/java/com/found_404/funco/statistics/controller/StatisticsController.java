@@ -12,11 +12,12 @@ import org.springframework.web.bind.annotation.RestController;
 import com.found_404.funco.global.util.AuthMemberId;
 import com.found_404.funco.statistics.dto.response.DailyStatisticsResponse;
 import com.found_404.funco.statistics.dto.response.MonthlyStatisticsResponse;
+import com.found_404.funco.statistics.dto.response.StartDateResponse;
 import com.found_404.funco.statistics.service.StatisticsService;
 
 import lombok.RequiredArgsConstructor;
 
-@RequestMapping("/statistics")
+@RequestMapping("/v1/statistics")
 @RequiredArgsConstructor
 @RestController
 public class StatisticsController {
@@ -34,5 +35,10 @@ public class StatisticsController {
 	public ResponseEntity<List<MonthlyStatisticsResponse>> getMonthlyStatistics(@AuthMemberId Long memberId,
 		@RequestParam Integer year) {
 		return ResponseEntity.status(HttpStatus.OK).body(statisticsService.readMonthlyStatistics(memberId, year));
+	}
+
+	@GetMapping("/startdate")
+	public ResponseEntity<StartDateResponse> getStartDate(@AuthMemberId Long memberId) {
+		return ResponseEntity.status(HttpStatus.OK).body(statisticsService.readStartDate(memberId));
 	}
 }

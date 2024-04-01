@@ -7,6 +7,8 @@ import java.util.List;
 import com.found_404.funco.statistics.domain.repository.QueryDslDailyStatisticsRepository;
 import com.found_404.funco.statistics.dto.response.DailyStatisticsResponse;
 import com.found_404.funco.statistics.dto.response.QDailyStatisticsResponse;
+import com.found_404.funco.statistics.dto.response.StartDateResponse;
+import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
 import lombok.RequiredArgsConstructor;
@@ -28,5 +30,15 @@ public class QueryDslDailyStatisticsRepositoryImpl implements QueryDslDailyStati
 				.and(dailyStatistics.date.month().eq(month)))
 			.orderBy(dailyStatistics.date.asc())
 			.fetch();
+	}
+
+	@Override
+	public StartDateResponse findStartDateByMemberId(Long memberId) {
+		return jpaQueryFactory
+			.select(Projections.constructor(StartDateResponse.class, dailyStatistics.date.year(),
+				dailyStatistics.date.month()))
+			.from(dailyStatistics)
+			.where(dailyStatistics.member.id.eq(memberId))
+			.fetchFirst();
 	}
 }

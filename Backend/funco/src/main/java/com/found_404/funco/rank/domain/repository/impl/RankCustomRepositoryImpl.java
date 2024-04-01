@@ -42,7 +42,6 @@ public class RankCustomRepositoryImpl implements RankCustomRepository {
 			)
 			.from(follow)
 			.rightJoin(member).on(follow.following.id.eq(member.id))
-			.where(follow.settled.isFalse().or(follow.settled.isNull()))
 			.groupBy(member.id)
 			.orderBy(follow.investment.sum().desc())
 			.fetch();

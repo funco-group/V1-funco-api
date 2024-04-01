@@ -15,6 +15,7 @@ import com.found_404.funco.follow.domain.repository.QueryDslFollowRepository;
 import com.found_404.funco.follow.domain.type.SettleType;
 import com.found_404.funco.follow.dto.CoinInfo;
 import com.found_404.funco.follow.dto.FollowingInfo;
+import com.found_404.funco.follow.dto.HoldingCoinsDto;
 import com.found_404.funco.follow.dto.QueryFollowingInfoResult;
 import com.found_404.funco.follow.dto.SliceFollowingInfo;
 import com.found_404.funco.follow.dto.response.FollowerListResponse;
@@ -72,13 +73,11 @@ public class QueryDslFollowRepositoryImpl implements QueryDslFollowRepository {
 	}
 
 	@Override
-	public List<String> findHoldingCoin(Long memberId) {
-		return jpaQueryFactory.select(
-				holdingCoin.ticker
-			)
+	public List<HoldingCoinsDto> findHoldingCoin(Long memberId) {
+		return jpaQueryFactory
+			.select(Projections.constructor(HoldingCoinsDto.class, holdingCoin.ticker, holdingCoin.ticker))
 			.from(holdingCoin)
-			.where(holdingCoin.volume.ne(0.0))
-			.distinct()
+			.where(holdingCoin.member.id.eq(memberId))
 			.fetch();
 	}
 

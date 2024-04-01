@@ -2,10 +2,12 @@ package com.found_404.funco.asset.controller;
 
 import com.found_404.funco.asset.dto.response.CashResponse;
 import com.found_404.funco.asset.dto.response.TotalAssetResponse;
+import com.found_404.funco.asset.dto.response.CryptoResponse;
 import com.found_404.funco.asset.service.AssetService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -16,7 +18,7 @@ public class AssetController {
 
     private final AssetService assetService;
 
-    @GetMapping("")
+    @GetMapping()
     public ResponseEntity<TotalAssetResponse> getMemberTotalAsset() {
         // 임시로 설정한 memberId
         long memberId = 1L;
@@ -32,6 +34,11 @@ public class AssetController {
         return ResponseEntity.ok(assetService.getMemberCash(memberId));
     }
 
+    @GetMapping("/crypto/{ticker}")
+    public ResponseEntity<CryptoResponse> getCrypto(@PathVariable String ticker) {
+        long memberId = 1L;
 
+        return ResponseEntity.ok(assetService.getCrypto(memberId, ticker));
+    }
 
 }

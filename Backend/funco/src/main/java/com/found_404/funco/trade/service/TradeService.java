@@ -27,6 +27,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static com.found_404.funco.global.util.DecimalCalculator.*;
+import static com.found_404.funco.global.util.ScaleType.*;
 import static com.found_404.funco.member.exception.MemberErrorCode.NOT_FOUND_MEMBER;
 import static com.found_404.funco.trade.exception.TradeErrorCode.*;
 
@@ -59,7 +61,7 @@ public class TradeService {
         member.decreaseCash(orderCash);
 
         // 구매 개수
-        double volume = (double) orderCash / currentPrice;
+        double volume = divide(orderCash, currentPrice, VOLUME_SCALE);
 
         // 코인 있으면 더하기 없으면 추가
         Optional<HoldingCoin> holdingCoin = holdingCoinRepository.findByMemberAndTicker(member, ticker);
@@ -108,7 +110,7 @@ public class TradeService {
         long currentPrice = getPriceByTicker(ticker);
 
         // 수수료 제외한 잔액 증가
-        long orderCash = (long) (currentPrice * volume);
+        long orderCash = (long) (multiple(currentPrice, volume, NORMAL_SCALE));
         member.increaseCash(orderCash);
 
         // 코인 감소
@@ -238,7 +240,7 @@ public class TradeService {
                 .ticker(ticker)
                 .tradeType(TradeType.SELL)
                 .member(member)
-                .orderCash((long) (volume * price))
+                .orderCash((long) multiple(volume, price, NORMAL_SCALE))
                 .price(price)
                 .volume(volume)
                 .status(Boolean.FALSE)

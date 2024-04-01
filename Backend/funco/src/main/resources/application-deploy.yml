@@ -1,4 +1,38 @@
+# 배포 환경 테스트용. 실제 파일은 배포 단계에서 직접 넣어준다.
+
 spring:
   config:
     activate:
       on-profile: deploy
+
+  mvc:
+    servlet:
+      path: /api
+
+  datasource:
+    driver-class-name: org.h2.Driver  # Database를 H2로 사용하겠다.
+    url: jdbc:h2:mem:h2db  # H2 접속 정보
+    username: sa  # H2 접속 시 입력할 username 정보 (원하는 것으로 입력)
+    password:  # H2 접속 시 입력할 password 정보 (원하는 것으로 입력)
+
+  h2:
+    console:
+      enabled: true  # H2 Console을 사용할지 여부 (H2 Console은 H2 Database를 UI로 제공해주는 기능)
+      path: /h2-console  # H2 Console의 Path
+
+  jpa:
+    generate-ddl: true
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    defer-datasource-initialization: true
+    properties:
+      hibernate:
+        format_sql: true
+
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password: funco

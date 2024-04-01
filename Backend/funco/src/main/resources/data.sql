@@ -35,7 +35,7 @@ VALUES (1, 'KRW-BTC', 1.0, 95000000),
        (5, 'KRW-BCH', 1.0, 1500),
        (5, 'KRW-SOL', 1.0, 1500);
 
-INSERT INTO funco.follow (return_rate, settled, cash, commission, follower_id, following_id, investment, settle_date,
+INSERT INTO follow (return_rate, settled, cash, commission, follower_id, following_id, investment, settle_date,
                           settlement)
 VALUES (0.05, true, 50000, 1000, 1, 2, 100000, '2024-03-30 08:00:00', 52500),
        (NULL, false, 80000, NULL, 1, 3, 120000, NULL, NULL),

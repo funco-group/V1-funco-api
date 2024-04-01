@@ -1,6 +1,8 @@
 package com.found_404.funco.trade.domain;
 
 import com.found_404.funco.global.util.CommissionUtil;
+import com.found_404.funco.global.util.DecimalCalculator;
+import com.found_404.funco.global.util.ScaleType;
 import com.found_404.funco.trade.exception.TradeException;
 import lombok.*;
 import org.hibernate.annotations.Comment;
@@ -48,18 +50,18 @@ public class HoldingCoin extends BaseEntity {
 
 	public void increaseVolume(double volume, Long price) {
 		this.averagePrice = (long) (((this.volume * this.averagePrice) + (volume * price)) / (volume + this.volume));
-		this.volume += CommissionUtil.getVolumeWithoutCommission(volume);
+		this.volume = DecimalCalculator.plus(this.volume, volume, ScaleType.VOLUME_SCALE);
 	}
 
 	public void decreaseVolume(double volume) {
 		if (this.volume < volume) {
 			throw new TradeException(INSUFFICIENT_COINS);
 		}
-		this.volume -= volume;
+		this.volume = DecimalCalculator.minus(this.volume, volume, ScaleType.VOLUME_SCALE);
 	}
 
 	public void recoverVolume(double volume) {
-		this.volume += volume;
+		this.volume = DecimalCalculator.plus(this.volume, volume, ScaleType.VOLUME_SCALE);
 	}
 
 }

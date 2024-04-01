@@ -16,13 +16,13 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/rank")
+@RequestMapping("/v1/rank")
 public class RankController {
 	private final RankService rankService;
 
 	@GetMapping
 	public ResponseEntity<Page<RankResponse>> getRanking(@RequestParam String type,
-		@PageableDefault(size = 7) Pageable pageable) {
+		@PageableDefault(size = 10) Pageable pageable) {
 		return ResponseEntity.ok(rankService.readRanking(type, pageable));
 	}
 }

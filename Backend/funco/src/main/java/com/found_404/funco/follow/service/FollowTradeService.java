@@ -104,7 +104,6 @@ public class FollowTradeService {
                 .price(trade.getPrice())
                 .ticker(trade.getTicker())
                 .status(Boolean.TRUE)
-                .tradedAt(trade.getTradedAt())
                 .member(follow.getFollower())
                 .volume(volume) // 비율
                 .orderCash(orderCash)

@@ -88,8 +88,6 @@ public class TradeService {
         // 팔로우 연동
         followTradeService.followTrade(trade);
 
-        System.out.println("팔로우 비동기 이후 로직!");
-
         return MarketTradeResponse.builder()
                 .ticker(trade.getTicker())
                 .price(trade.getPrice())
@@ -110,7 +108,8 @@ public class TradeService {
         // 코인 감소
         HoldingCoin holdingCoin = holdingCoinRepository.findByMemberAndTicker(member, ticker)
                 .orElseThrow(() -> new TradeException(INSUFFICIENT_COINS));
-        holdingCoin.decreaseVolume(volume);
+
+        decreaseHoldingCoin(holdingCoin, volume);
 
         // 데이터 저장
         Trade trade = Trade.builder()
@@ -209,11 +208,11 @@ public class TradeService {
     @Transactional
     public void limitSelling(Member member, String ticker, Long price, Double volume) {
         // 코인 확인 및 팔려고 등록한 만큼 빼기
-        Optional<HoldingCoin> holdingCoin = holdingCoinRepository.findByMemberAndTicker(member, ticker);
-        if (holdingCoin.isEmpty() || holdingCoin.get().getVolume() < volume) {
+        Optional<HoldingCoin> optionalHoldingCoin = holdingCoinRepository.findByMemberAndTicker(member, ticker);
+        if (optionalHoldingCoin.isEmpty() || optionalHoldingCoin.get().getVolume() < volume) {
             throw new TradeException(INSUFFICIENT_COINS);
         } else {
-            holdingCoin.get().decreaseVolume(volume);
+            decreaseHoldingCoin(optionalHoldingCoin.get(), volume);
         }
 
         // 미체결 거래 생성
@@ -229,5 +228,13 @@ public class TradeService {
 
         // 미체결 거래 등록
         cryptoPrice.addTrade(openTrade.getTicker(), openTrade.getId(), openTrade.getTradeType(), openTrade.getPrice());
+    }
+
+    @Transactional
+    public void decreaseHoldingCoin(HoldingCoin holdingCoin, Double volume) {
+        holdingCoin.decreaseVolume(volume);
+        if (holdingCoin.getVolume() <= 0) {
+            holdingCoinRepository.delete(holdingCoin);
+        }
     }
 }

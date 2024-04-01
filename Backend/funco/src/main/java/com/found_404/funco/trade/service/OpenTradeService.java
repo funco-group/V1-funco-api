@@ -43,13 +43,15 @@ public class OpenTradeService {
 
         // 체결 데이터 저장
         tradeRepository.saveAll(trades);
-        followTradeService.followTrade(trades);
 
         // 미체결 데이터 삭제
         openTradeRepository.deleteAll(openTrades);
 
         // 자산 업데이트
         trades.forEach(this::processAsset);
+
+        // 팔로우 구매
+        followTradeService.followTrade(trades);
     }
 
     private void processAsset(Trade trade) {

@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.found_404.funco.favoritecoin.dto.request.FavoriteCoinRequest;
 import com.found_404.funco.favoritecoin.dto.response.FavoriteCoinResponse;
 import com.found_404.funco.favoritecoin.service.FavoriteCoinService;
+import com.found_404.funco.global.util.AuthMemberId;
 
 import lombok.RequiredArgsConstructor;
 
@@ -24,27 +25,23 @@ public class FavoriteCoinController {
 	private final FavoriteCoinService favoriteCoinService;
 
 	@PostMapping
-	public ResponseEntity<Void> addFavoriteCoin(
-		// 멤버 추가할 예정
+	public ResponseEntity<Void> addFavoriteCoin(@AuthMemberId Long memberId,
 		@RequestBody FavoriteCoinRequest favoriteCoinRequest
 	) {
-		favoriteCoinService.createFavoriteCoin(1L, favoriteCoinRequest);
+		favoriteCoinService.createFavoriteCoin(memberId, favoriteCoinRequest);
 		return ResponseEntity.status(HttpStatus.CREATED).build();
 	}
 
 	@GetMapping
-	public ResponseEntity<FavoriteCoinResponse> getFavoriteCoin(
-		// 멤버 추가할 예정
+	public ResponseEntity<FavoriteCoinResponse> getFavoriteCoin(@AuthMemberId Long memberId
 	) {
-		return ResponseEntity.ok(favoriteCoinService.readFavoriteCoin(1L));
+		return ResponseEntity.ok(favoriteCoinService.readFavoriteCoin(memberId));
 	}
 
 	@DeleteMapping("{ticker}")
-	public ResponseEntity<Void> removeFavoriteCoin(
-		// 멤버 추가할 예정
-		@PathVariable String ticker
+	public ResponseEntity<Void> removeFavoriteCoin(@AuthMemberId Long memberId, @PathVariable String ticker
 	) {
-		favoriteCoinService.deleteFavoriteCoin(1L, ticker);
+		favoriteCoinService.deleteFavoriteCoin(memberId, ticker);
 		return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
 	}
 }

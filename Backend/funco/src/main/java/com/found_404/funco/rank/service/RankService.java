@@ -1,5 +1,8 @@
 package com.found_404.funco.rank.service;
 
+import static com.found_404.funco.global.util.DecimalCalculator.*;
+import static com.found_404.funco.global.util.ScaleType.*;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -33,6 +36,8 @@ public class RankService {
 	private final RedisTemplate<String, Object> rankZSetRedisTemplate;
 	private final RankCustomRepository rankCustomRepository;
 	private final CryptoPrice cryptoPrice;
+	private final static long INIT_CASH = 10_000_000;
+	private final static long PERCENT = 100;
 
 	public Page<RankResponse> readRanking(String type, Pageable pageable) {
 		ZSetOperations<String, Object> zSetOperations = rankZSetRedisTemplate.opsForZSet();
@@ -78,12 +83,15 @@ public class RankService {
 		// 팔로워 자산 계산
 		List<FollowingCoinInfo> followingCoinInfos = rankCustomRepository.findFollowingCoinInfo();
 
+		// DecimalCalculator.
+
 		// 랭킹 업데이트
 		followingCoinInfos.forEach(info -> {
-			Long totalAsset = info.cash() + (holdingCoins.getOrDefault(info.memberInfo().id(), 0L));
+			long totalAsset = info.cash() + (holdingCoins.getOrDefault(info.memberInfo().id(), 0L));
 			updateRankingInRedis(RankResponse.builder()
 				.member(info.memberInfo())
-				.returnRate(Math.round((totalAsset.doubleValue() - 10000000) / 10000000 * 10000) / 100.0)
+				.returnRate(
+					multiple(divide(totalAsset - INIT_CASH, INIT_CASH, NORMAL_SCALE), PERCENT, RETURN_RATE_SCALE))
 				.totalAsset(totalAsset)
 				.followingAsset(info.followingAsset())
 				.build());

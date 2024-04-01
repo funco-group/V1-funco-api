@@ -50,7 +50,7 @@ public class TokenService {
 
 	private final MemberRepository memberRepository;
 	private final RedisTemplate<String, Object> tokenRedisTemplate;
-	private final long TOKEN_PERIOD = 30 * 60 * 1000L; // 30분
+	private final long TOKEN_PERIOD = 12 * 60 * 60 * 1000L; // 12h
 	private final long REFRESH_PERIOD = 14 * 24 * 60 * 60 * 1000L; // 14일
 	private final String REDIS_REFRESH_TOKEN_KEY = "refreshToken";
 
@@ -105,7 +105,7 @@ public class TokenService {
 	public String resolveToken(HttpServletRequest request) {
 		String accessToken = request.getHeader("Authorization");
 
-		if (accessToken == null || accessToken.trim().length() == 0) {
+		if (accessToken == null || accessToken.trim().isEmpty()) {
 			throw new SecurityException(EMPTY_TOKEN, HttpStatus.UNAUTHORIZED);
 		}
 

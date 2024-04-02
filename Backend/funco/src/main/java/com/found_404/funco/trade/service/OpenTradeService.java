@@ -21,6 +21,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 @Slf4j
 public class OpenTradeService {
     private final TradeRepository tradeRepository;
@@ -30,7 +31,6 @@ public class OpenTradeService {
     private final NotificationService notificationService;
 
     @Async
-    @Transactional
     public void processTrade(List<Long> concludingTradeIds, String ticker, boolean removeTicker) {
 //        if (removeTicker) {
 //            cryptoPrice.removeTicker(ticker);

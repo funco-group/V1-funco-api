@@ -15,8 +15,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.found_404.funco.follow.domain.Follow;
+import com.found_404.funco.follow.domain.FollowTrade;
 import com.found_404.funco.follow.domain.FollowingCoin;
 import com.found_404.funco.follow.domain.repository.FollowRepository;
+import com.found_404.funco.follow.domain.repository.FollowTradeRepository;
 import com.found_404.funco.follow.domain.repository.FollowingCoinRepository;
 import com.found_404.funco.follow.dto.HoldingCoinsDto;
 import com.found_404.funco.follow.dto.SliceFollowingInfo;
@@ -29,9 +31,7 @@ import com.found_404.funco.member.domain.repository.MemberRepository;
 import com.found_404.funco.member.exception.MemberException;
 import com.found_404.funco.trade.cryptoPrice.CryptoPrice;
 import com.found_404.funco.trade.domain.HoldingCoin;
-import com.found_404.funco.trade.domain.Trade;
 import com.found_404.funco.trade.domain.repository.HoldingCoinRepository;
-import com.found_404.funco.trade.domain.repository.TradeRepository;
 import com.found_404.funco.trade.domain.type.TradeType;
 
 import lombok.RequiredArgsConstructor;
@@ -46,7 +46,7 @@ public class FollowService {
 	private final MemberRepository memberRepository;
 	private final HoldingCoinRepository holdingCoinRepository;
 	private final FollowingCoinRepository followingCoinRepository;
-	private final TradeRepository tradeRepository;
+	private final FollowTradeRepository followTradeRepository;
 
 	private final CryptoPrice cryptoPrice;
 
@@ -131,7 +131,7 @@ public class FollowService {
 		 * 팔로잉 코인 갯수 = (초기 투자금 * 부모의 전체 자산에 대해 해당 코인이 차지하는 비율) / 해당 코인의 현재 시세
 		 * 주문 가격 = 초기 투자금 * 부모의 해당 코인의 전체 자산에 대한 비율 => 부모의 코인 비율만큼 사는 것이기 때문
 		 * */
-		Map<FollowingCoin, Trade> followingCoinTradeMap = assetRatioMap.entrySet().stream()
+		Map<FollowingCoin, FollowTrade> followingCoinFollowTradeMap = assetRatioMap.entrySet().stream()
 			.collect(Collectors.toMap(entry -> FollowingCoin.builder()
 					.follow(follow)
 					.ticker(entry.getKey())
@@ -139,8 +139,8 @@ public class FollowService {
 						followingCryptoPriceMap.get(entry.getKey()), VOLUME_SCALE))
 					.averagePrice(followingCryptoPriceMap.get(entry.getKey()))
 					.build(),
-				entry -> Trade.builder()
-					.member(followerMember)
+				entry -> FollowTrade.builder()
+					.follow(follow)
 					.ticker(entry.getKey())
 					.tradeType(TradeType.BUY)
 					.volume(
@@ -148,13 +148,12 @@ public class FollowService {
 							followingCryptoPriceMap.get(entry.getKey()), VOLUME_SCALE))
 					.orderCash((long)multiple(investment, entry.getValue(), CASH_SCALE))
 					.price(followingCryptoPriceMap.get(entry.getKey()))
-					.status(Boolean.TRUE)
 					.build()));
 
 		// 엔티티 insert
 		followRepository.save(follow);
-		followingCoinRepository.saveAll(followingCoinTradeMap.keySet());
-		tradeRepository.saveAll(followingCoinTradeMap.values());
+		followingCoinRepository.saveAll(followingCoinFollowTradeMap.keySet());
+		followTradeRepository.saveAll(followingCoinFollowTradeMap.values());
 	}
 
 	@Transactional
@@ -177,9 +176,9 @@ public class FollowService {
 			.collect(Collectors.toList()));
 
 		// 거래 내역
-		List<Trade> trades = followingCoins.stream()
-			.map(followingCoin -> Trade.builder()
-				.member(followerMember)
+		List<FollowTrade> followTrades = followingCoins.stream()
+			.map(followingCoin -> FollowTrade.builder()
+				.follow(follow)
 				.ticker(followingCoin.getTicker())
 				.tradeType(TradeType.SELL)
 				.volume(followingCoin.getVolume())
@@ -187,7 +186,6 @@ public class FollowService {
 					(long)multiple(followingCryptoPriceMap.get(followingCoin.getTicker()), followingCoin.getVolume(),
 						CASH_SCALE))
 				.price(followingCryptoPriceMap.get(followingCoin.getTicker()))
-				.status(Boolean.TRUE)
 				.build())
 			.toList();
 
@@ -231,7 +229,7 @@ public class FollowService {
 
 		// 데이터 insert
 		followingCoinRepository.deleteAll(followingCoins);
-		tradeRepository.saveAll(trades);
+		followTradeRepository.saveAll(followTrades);
 	}
 
 	public FollowingListResponse readFollowingList(Member member, Long lastFollowId) {

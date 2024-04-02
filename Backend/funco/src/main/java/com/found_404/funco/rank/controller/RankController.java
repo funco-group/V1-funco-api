@@ -28,7 +28,7 @@ public class RankController {
 	}
 
 	@GetMapping("/test")
-	public ResponseEntity<?> testRanking() {
+	public ResponseEntity<Void> testRanking() {
 		return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
 	}
 }

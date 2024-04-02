@@ -74,7 +74,6 @@ public class OpenTradeService {
 
     private void processAsset(Trade trade) {
         Optional<HoldingCoin> optionalHoldingCoin = holdingCoinRepository.findByMemberAndTicker(trade.getMember(), trade.getTicker());
-        log.info("asset에러부분, member:{}, ticker:{}, holding entity:{}", trade.getMember().getNickname(), trade.getTicker(), optionalHoldingCoin);
 
         if (trade.getTradeType().equals(TradeType.BUY)) { // BUY
             HoldingCoin holdingCoin;
@@ -94,8 +93,6 @@ public class OpenTradeService {
         } else { // SELL
             if (optionalHoldingCoin.isEmpty() || optionalHoldingCoin.get().getVolume() <= trade.getVolume()) {
                 log.error("member : {}, coin: {}, sell faild 개수 부족", trade.getMember().getId(), trade.getTicker());
-                log.error(holdingCoinRepository.findByMemberIdAndTicker(trade.getMember().getId(), trade.getTicker()).toString());
-                log.error("보유 개수 :{}, 팔려는 개수: {}",optionalHoldingCoin.get().getVolume(),trade.getVolume());
                 return;
             }
             optionalHoldingCoin.get().decreaseVolume(trade.getVolume());

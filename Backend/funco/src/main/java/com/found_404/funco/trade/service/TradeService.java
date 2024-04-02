@@ -232,8 +232,5 @@ public class TradeService {
     @Transactional
     public void decreaseHoldingCoin(HoldingCoin holdingCoin, Double volume) {
         holdingCoin.decreaseVolume(volume);
-        if (holdingCoin.getVolume() <= 0) {
-            holdingCoinRepository.delete(holdingCoin);
-        }
     }
 }

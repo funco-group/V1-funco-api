@@ -1,11 +1,11 @@
 package com.found_404.funco.member.domain;
 
-import com.found_404.funco.global.util.DecimalCalculator;
-import com.found_404.funco.global.util.ScaleType;
 import org.hibernate.annotations.Comment;
 
 import com.found_404.funco.auth.dto.OauthId;
 import com.found_404.funco.global.entity.BaseEntity;
+import com.found_404.funco.global.util.DecimalCalculator;
+import com.found_404.funco.global.util.ScaleType;
 import com.found_404.funco.member.domain.type.MemberStatus;
 
 import jakarta.persistence.Column;
@@ -72,7 +72,11 @@ public class Member extends BaseEntity {
 	}
 
 	public long getCashWithCommission(long orderCash) {
-		return orderCash - (long) (DecimalCalculator.multiple(orderCash, COMMISSION, ScaleType.NORMAL_SCALE));
+		return orderCash - (long)(DecimalCalculator.multiple(orderCash, COMMISSION, ScaleType.NORMAL_SCALE));
+	}
+
+	public void settleCash(long settlement) {
+		this.cash += settlement;
 	}
 
 	public void recoverCash(long cash) {

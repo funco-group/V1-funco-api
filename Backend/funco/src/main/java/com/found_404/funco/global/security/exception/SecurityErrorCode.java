@@ -6,6 +6,7 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum SecurityErrorCode {
+	MEMBER_NOT_FOUND("해당 회원을 찾을 수 없습니다."),
 	EXPIRED_TOKEN("만료된 토큰입니다."),
 	EXPIRED_REFRESH_TOKEN("만료된 refresh 토큰입니다."),
 	INVALID_TOKEN("유효하지 않은 토큰입니다."),

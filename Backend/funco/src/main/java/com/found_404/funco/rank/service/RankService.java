@@ -3,6 +3,7 @@ package com.found_404.funco.rank.service;
 import static com.found_404.funco.global.util.DecimalCalculator.*;
 import static com.found_404.funco.global.util.ScaleType.*;
 
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -26,11 +27,14 @@ import com.found_404.funco.rank.dto.response.RankResponse;
 import com.found_404.funco.trade.cryptoPrice.CryptoPrice;
 import com.found_404.funco.trade.dto.HoldingCoinInfo;
 
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
 @Transactional
+@Slf4j
 public class RankService {
 
 	private final RedisTemplate<String, Object> rankZSetRedisTemplate;
@@ -59,8 +63,10 @@ public class RankService {
 	}
 
 	// 배치 전 - 스케줄링 돌릴 메서드
-	@Scheduled(fixedRate = 1800000) // 30분마다 실행
+	@Scheduled(cron = "0 0/30 * * * *", zone = "Asia/Seoul") // 30분마다 실행
+	@PostConstruct
 	public void runSchedulingProcess() {
+		log.debug("스케줄링 작업 시간 : " + LocalDateTime.now());
 		// redis 비우는 작업
 		clearRankingZSets();
 		// 코인 및 가격 정보 조회

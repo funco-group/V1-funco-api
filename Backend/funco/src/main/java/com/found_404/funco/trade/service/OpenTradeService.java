@@ -69,7 +69,7 @@ public class OpenTradeService {
         message.append("[").append(trade.getTicker()).append("] ")
                         .append(String.format("%,f", trade.getVolume())).append("개 ")
                         .append(String.format("%,d", trade.getPrice())).append("원 ")
-                        .append(trade.getTradeType().name()).append(" 체결 ");
+                        .append(trade.getTradeType().getKorean()).append(" 체결 ");
         return message.toString();
     }
 

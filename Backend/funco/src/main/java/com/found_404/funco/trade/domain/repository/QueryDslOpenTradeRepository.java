@@ -7,5 +7,5 @@ import java.util.List;
 
 public interface QueryDslOpenTradeRepository {
 
-    List<OpenTrade> findMyOpenTrade(Long memberId, Boolean status, String ticker, Pageable pageable);
+    List<OpenTrade> findMyOpenTrade(Long memberId, String ticker, Pageable pageable);
 }

@@ -67,7 +67,7 @@ public class TradeController {
     public ResponseEntity<List<TradeDto>> getOrders(@AuthenticationPrincipal Member member,
                                                     Pageable pageable, TradeRequest tradeRequest) {
 
-        return ResponseEntity.ok(tradeService.getOrders(member, tradeRequest.ticker(), tradeRequest.follow(), pageable));
+        return ResponseEntity.ok(tradeService.getOrders(member, tradeRequest.ticker(), pageable));
     }
 
     // 미체결 거래 내역 보기
@@ -75,7 +75,7 @@ public class TradeController {
     public ResponseEntity<List<OpenTradeDto>> getOpenOrders(@AuthenticationPrincipal Member member,
                                                             Pageable pageable, TradeRequest tradeRequest) {
 
-        return ResponseEntity.ok(tradeService.getOpenOrders(member, tradeRequest.follow(), tradeRequest.ticker(), pageable));
+        return ResponseEntity.ok(tradeService.getOpenOrders(member, tradeRequest.ticker(), pageable));
     }
 
     // 미체결 거래 취소

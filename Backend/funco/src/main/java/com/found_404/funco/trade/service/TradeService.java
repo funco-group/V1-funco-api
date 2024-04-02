@@ -79,7 +79,6 @@ public class TradeService {
                 .member(member)
                 .orderCash(orderCash)
                 .price(currentPrice)
-                .status(false)
                 .volume(volume)
                 .build();
 
@@ -118,7 +117,6 @@ public class TradeService {
                 .member(member)
                 .orderCash(orderCash)
                 .price(currentPrice)
-                .status(false)
                 .volume(volume)
                 .build();
 
@@ -145,17 +143,17 @@ public class TradeService {
     }
 
     @Transactional(readOnly = true)
-    public List<TradeDto> getOrders(Member member, String ticker, Boolean follow, Pageable pageable) {
-        return tradeRepository.findMyTradeHistoryByTicker(member.getId(), follow, ticker, pageable)
+    public List<TradeDto> getOrders(Member member, String ticker, Pageable pageable) {
+        return tradeRepository.findMyTradeHistoryByTicker(member.getId(), ticker, pageable)
                 .stream()
                 .map(TradeDto::fromEntity)
                 .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
-    public List<OpenTradeDto> getOpenOrders(Member member, Boolean follow, String ticker, Pageable pageable) {
+    public List<OpenTradeDto> getOpenOrders(Member member, String ticker, Pageable pageable) {
         // 멤버 아이디, 코인 유무, id 역순,
-        return openTradeRepository.findMyOpenTrade(member.getId(), follow, ticker, pageable)
+        return openTradeRepository.findMyOpenTrade(member.getId(), ticker, pageable)
                 .stream()
                 .map(OpenTradeDto::fromEntity)
                 .collect(Collectors.toList());
@@ -199,7 +197,6 @@ public class TradeService {
                 .orderCash(orderCash)
                 .price(price)
                 .volume(volume)
-                .status(Boolean.FALSE)
                 .build());
 
         cryptoPrice.addTrade(openTrade.getTicker(), openTrade.getId(), openTrade.getTradeType(), openTrade.getPrice());
@@ -223,7 +220,6 @@ public class TradeService {
                 .orderCash((long) multiple(volume, price, NORMAL_SCALE))
                 .price(price)
                 .volume(volume)
-                .status(Boolean.FALSE)
                 .build());
 
         // 미체결 거래 등록

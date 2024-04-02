@@ -1,8 +1,10 @@
 package com.found_404.funco.follow.service;
 
 import com.found_404.funco.follow.domain.Follow;
+import com.found_404.funco.follow.domain.FollowTrade;
 import com.found_404.funco.follow.domain.FollowingCoin;
 import com.found_404.funco.follow.domain.repository.FollowRepository;
+import com.found_404.funco.follow.domain.repository.FollowTradeRepository;
 import com.found_404.funco.follow.domain.repository.FollowingCoinRepository;
 import com.found_404.funco.global.util.DecimalCalculator;
 import com.found_404.funco.member.domain.Member;
@@ -32,21 +34,21 @@ import static com.found_404.funco.global.util.ScaleType.*;
 @RequiredArgsConstructor
 @Transactional
 public class FollowTradeService {
-    private final TradeRepository tradeRepository;
     private final FollowRepository followRepository;
     private final HoldingCoinRepository holdingCoinRepository;
     private final FollowingCoinRepository followingCoinRepository;
+    private final FollowTradeRepository followTradeRepository;
 
     @Async
     public void followTrade(Trade trade) {
         List<Follow> followerList = followRepository.findAllByFollowingAndSettled(trade.getMember(), Boolean.FALSE);
 
-        tradeRepository.saveAll(followerList.stream()
+        followTradeRepository.saveAll(followerList.stream()
                 .map(follow -> getTrade(trade, follow))
                 .toList());
     }
 
-    public Trade getTrade(Trade trade, Follow follow) {
+    public FollowTrade getTrade(Trade trade, Follow follow) {
         Member following = follow.getFollowing();
         Member follower = follow.getFollower();
 
@@ -101,12 +103,12 @@ public class FollowTradeService {
 
         log.info("[{}] member: {} -> follwer: {}, {}가 {}원에 {}만큼 {}원어치 거래 체결.", LocalDateTime.now(), following.getNickname(), follower.getNickname(),
                 trade.getTicker(), trade.getPrice(), volume, orderCash);
-        return Trade.builder()
+
+        return FollowTrade.builder()
+                .follow(follow)
                 .tradeType(trade.getTradeType())
                 .price(trade.getPrice())
                 .ticker(trade.getTicker())
-                .status(Boolean.TRUE)
-                .member(follower)
                 .volume(volume) // 비율
                 .orderCash(orderCash)
                 .build();

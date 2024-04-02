@@ -19,11 +19,10 @@ public class QueryDslOpenTradeRepositoryImpl implements QueryDslOpenTradeReposit
     private final JPAQueryFactory jpaQueryFactory;
 
     @Override
-    public List<OpenTrade> findMyOpenTrade(Long memberId, Boolean status, String ticker, Pageable pageable) {
+    public List<OpenTrade> findMyOpenTrade(Long memberId, String ticker, Pageable pageable) {
         return jpaQueryFactory
                 .selectFrom(openTrade)
                 .where(openTrade.member.id.eq(memberId),
-                        filterStatus(status),
                         filterTicker(ticker))
                 .orderBy(openTrade.id.desc())
                 .limit(pageable.getPageSize())
@@ -33,10 +32,6 @@ public class QueryDslOpenTradeRepositoryImpl implements QueryDslOpenTradeReposit
 
     private Predicate filterTicker(String ticker) {
         return Objects.nonNull(ticker) ? openTrade.ticker.eq(ticker) : null;
-    }
-
-    private Predicate filterStatus(Boolean status) {
-        return Objects.nonNull(status) ? openTrade.status.eq(status) : null;
     }
 
 }

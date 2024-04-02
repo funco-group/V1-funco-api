@@ -11,6 +11,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import com.found_404.funco.follow.dto.FollowTradeDto;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -268,4 +270,12 @@ public class FollowService {
 		return memberRepository.findById(memberId).orElseThrow(() -> new MemberException(NOT_FOUND_MEMBER));
 	}
 
+	public List<FollowTradeDto> getFollowTrades(Member member, Pageable pageable, Long followId) {
+		Follow follow = followRepository.getReferenceById(followId);
+
+		return followTradeRepository.findByFollow(pageable, follow)
+				.stream()
+				.map(FollowTradeDto::fromEntity)
+				.toList();
+	}
 }

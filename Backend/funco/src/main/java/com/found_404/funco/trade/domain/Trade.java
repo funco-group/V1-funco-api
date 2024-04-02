@@ -45,12 +45,8 @@ public class Trade extends BaseEntity {
 	@Comment("체결 가격")
 	private Long price;
 
-	@Comment("팔로우 여부")
-	private Boolean status;
-
 	@Builder
-	public Trade(Member member, String ticker, TradeType tradeType, Double volume, Long orderCash, Long price,
-				 Boolean status) {
+	public Trade(Member member, String ticker, TradeType tradeType, Double volume, Long orderCash, Long price) {
 
 		this.member = member;
 		this.ticker = ticker;
@@ -58,7 +54,5 @@ public class Trade extends BaseEntity {
 		this.volume = volume;
 		this.orderCash = orderCash;
 		this.price = price;
-		this.status = status;
-
 	}
 }

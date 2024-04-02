@@ -29,6 +29,7 @@ public class RankController {
 
 	@GetMapping("/test")
 	public ResponseEntity<Void> testRanking() {
+		rankService.runSchedulingProcess();
 		return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
 	}
 }

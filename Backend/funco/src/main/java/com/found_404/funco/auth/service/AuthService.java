@@ -33,18 +33,13 @@ public class AuthService {
 
 	private final long INIT_CASH = 10_000_000;
 
-	public String getAuthCodeRequestUrl(OauthServerType oauthServerType) {
-		System.out.println("여기들어오나? : " + oauthServerType);
-		return authCodeRequestUrlProviderComposite.provide(oauthServerType);
-	}
-
 	// 가입되어 있지 않다면 저장(회원가입)
 	public LoginResponse login(HttpServletResponse response, OauthServerType oauthServerType, String authCode) {
 		OauthDto dto = oauthMemberClientComposite.fetch(oauthServerType, authCode);
 		Member member = memberRepository.findByOauthId(dto.member().getOauthId())
 			.orElseGet(() -> Member
 				.builder()
-				.nickname(createNickname())
+				.nickname(dto.member().getNickname())
 				.profileUrl(dto.member().getProfileUrl())
 				.cash(INIT_CASH)
 				.status(MemberStatus.NORMAL)

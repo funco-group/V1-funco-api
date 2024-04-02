@@ -44,7 +44,6 @@ public class SseEmitterService {
             sseEmitter.send(SseEmitter.event()
                     .name(name) // 이벤트 이름
                     .data(new Gson().toJson(data))); // 데이터
-            log.info("member :{} 에게 event sent! : {}", memberId, data);
         } catch (IOException e) {
             sseEmitters.remove(memberId);
             log.error("SseEmitter error memberId = {}", memberId);

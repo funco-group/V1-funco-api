@@ -96,7 +96,7 @@ public class UpbitWebSocketListener extends WebSocketListener {
 
         // 거래 처리
         if (!concludingTradeIds.isEmpty()) {
-            log.info("{} => buy: {}, sell: {}, price:{} ,체결: {}", code, buyQueue.size(), sellQueue.size(), tradePrice, concludingTradeIds.size());
+            log.info("{} price:{} ,체결: {}개", code, tradePrice, concludingTradeIds.size());
 
             int sizeSum = buyTrades.get(code).size() + sellTrades.get(code).size();
             openTradeService.processTrade(concludingTradeIds, code, sizeSum <= 0);

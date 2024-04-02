@@ -226,7 +226,7 @@ public class TradeService {
                 .ticker(ticker)
                 .tradeType(TradeType.SELL)
                 .member(member)
-                .orderCash((long) multiple(volume, price, NORMAL_SCALE))
+                .orderCash((long) multiple(volume, price, CASH_SCALE))
                 .price(price)
                 .volume(volume)
                 .buyPrice(optionalHoldingCoin.get().getAveragePrice())

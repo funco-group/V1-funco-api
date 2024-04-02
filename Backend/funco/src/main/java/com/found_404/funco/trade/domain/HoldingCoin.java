@@ -49,6 +49,7 @@ public class HoldingCoin extends BaseEntity {
 	}
 
 	public void increaseVolume(double volume, Long price) {
+		volume = CommissionUtil.getVolumeWithoutCommission(volume);
 		this.averagePrice = (long) (((this.volume * this.averagePrice) + (volume * price)) / (volume + this.volume));
 		this.volume = DecimalCalculator.plus(this.volume, volume, ScaleType.VOLUME_SCALE);
 	}

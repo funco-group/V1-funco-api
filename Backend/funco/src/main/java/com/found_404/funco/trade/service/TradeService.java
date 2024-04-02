@@ -18,6 +18,7 @@ import com.found_404.funco.trade.dto.response.HoldingCoinsResponse;
 import com.found_404.funco.trade.dto.response.MarketTradeResponse;
 import com.found_404.funco.trade.exception.TradeException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,6 +32,7 @@ import static com.found_404.funco.global.util.ScaleType.*;
 import static com.found_404.funco.trade.exception.TradeErrorCode.*;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class TradeService {
 
@@ -176,6 +178,7 @@ public class TradeService {
             member.recoverCash(openTrade.getOrderCash());
             memberRepository.save(member);
         } else {
+            log.info("미체결 취소 : {}, {}", member.getId(), openTrade.getTicker());
             HoldingCoin holdingCoin = holdingCoinRepository.findByMemberAndTicker(openTrade.getMember(), openTrade.getTicker())
                     .orElseThrow(() -> new TradeException(INSUFFICIENT_COINS));
             holdingCoin.recoverVolume(openTrade.getVolume());

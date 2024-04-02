@@ -1,8 +1,6 @@
 package com.found_404.funco.trade.domain;
 
 import com.found_404.funco.global.util.CommissionUtil;
-import com.found_404.funco.global.util.DecimalCalculator;
-import com.found_404.funco.global.util.ScaleType;
 import com.found_404.funco.trade.exception.TradeException;
 import lombok.*;
 import org.hibernate.annotations.Comment;
@@ -16,6 +14,8 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 
+import static com.found_404.funco.global.util.DecimalCalculator.*;
+import static com.found_404.funco.global.util.ScaleType.*;
 import static com.found_404.funco.trade.exception.TradeErrorCode.INSUFFICIENT_COINS;
 
 @Entity
@@ -49,20 +49,19 @@ public class HoldingCoin extends BaseEntity {
 	}
 
 	public void increaseVolume(double volume, Long price) {
-		volume = CommissionUtil.getVolumeWithoutCommission(volume);
-		this.averagePrice = (long) (((this.volume * this.averagePrice) + (volume * price)) / (volume + this.volume));
-		this.volume = DecimalCalculator.plus(this.volume, volume, ScaleType.VOLUME_SCALE);
+		recoverVolume(CommissionUtil.getVolumeWithoutCommission(volume), price);
 	}
 
 	public void decreaseVolume(double volume) {
 		if (this.volume < volume) {
 			throw new TradeException(INSUFFICIENT_COINS);
 		}
-		this.volume = DecimalCalculator.minus(this.volume, volume, ScaleType.VOLUME_SCALE);
+		this.volume = minus(this.volume, volume, VOLUME_SCALE);
 	}
 
-	public void recoverVolume(double volume) {
-		this.volume = DecimalCalculator.plus(this.volume, volume, ScaleType.VOLUME_SCALE);
+	public void recoverVolume(double volume, Long price) {
+		this.averagePrice = (long) divide((multiple(this.volume, this.averagePrice, NORMAL_SCALE) + multiple(volume, price, NORMAL_SCALE)), plus(volume, this.volume, NORMAL_SCALE), CASH_SCALE);
+		this.volume = plus(this.volume, volume, VOLUME_SCALE);
 	}
 
 }

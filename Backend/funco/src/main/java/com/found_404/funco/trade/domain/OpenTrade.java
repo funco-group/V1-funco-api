@@ -36,14 +36,18 @@ public class OpenTrade extends BaseEntity {
     @Comment("가격")
     private Long price;
 
+    @Comment("구매한 가격")
+    private Long buyPrice;
+
     @Builder
-    public OpenTrade(Member member, String ticker, TradeType tradeType, Double volume, Long orderCash, Long price) {
+    public OpenTrade(Member member, String ticker, TradeType tradeType, Double volume, Long orderCash, Long price, Long buyPrice) {
         this.member = member;
         this.ticker = ticker;
         this.tradeType = tradeType;
         this.volume = volume;
         this.orderCash = orderCash;
         this.price = price;
+        this.buyPrice = buyPrice;
     }
 
     public static Trade toTrade(OpenTrade openTrade) {

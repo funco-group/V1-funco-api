@@ -66,11 +66,10 @@ public class OpenTradeService {
 
     private String getMessage(Trade trade) {
         StringBuilder message = new StringBuilder();
-        message.append(trade.getVolume()).append(" ")
-                .append(trade.getTicker()).append(" ")
-                .append(trade.getPrice()).append("원 ")
-                .append(trade.getTradeType().equals(TradeType.BUY) ? "매수" : "매도").append(" 체결되었습니다.");
-
+        message.append("[").append(trade.getTicker()).append("] ")
+                        .append(String.format("%,f", trade.getVolume())).append("개 ")
+                        .append(String.format("%,d", trade.getPrice())).append("원 ")
+                        .append(trade.getTradeType().name()).append(" 체결 ");
         return message.toString();
     }
 

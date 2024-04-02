@@ -162,7 +162,10 @@ public class FollowService {
 		followTradeRepository.saveAll(followingCoinFollowTradeMap.values());
 
 		// 알림
-		notificationService.sendNotification(followingMember.getId(), NotificationType.FOLLOW, followerMember.getNickname() + "님이 " + investment + "원 팔로우하셨습니다.");
+		StringBuilder message = new StringBuilder();
+		message.append(followerMember.getNickname()).append("님에게 ")
+				.append(String.format("%,d", investment)).append("원을 투자 받으셨어요!!");
+		notificationService.sendNotification(followingMember.getId(), NotificationType.FOLLOW, message.toString());
 	}
 
 	@Transactional
@@ -241,7 +244,12 @@ public class FollowService {
 		followTradeRepository.saveAll(followTrades);
 
 		// 알림
-		notificationService.sendNotification(followingMember.getId(), NotificationType.SETTLE, followerMember.getNickname() + "님이 팔로우 정산하였습니다. 수수료 수익: " + commission + "원");
+		StringBuilder message = new StringBuilder();
+		message.append(followerMember.getNickname()).append("님이 투자금액 ")
+				.append(String.format("%,d", follow.getInvestment())).append("원을 정산하셨어요! ")
+				.append(String.format("%,d", commission)).append("원의 커미션을 받았습니다!");
+		notificationService.sendNotification(followingMember.getId(), NotificationType.SETTLE, message.toString());
+
 	}
 
 	public FollowingListResponse readFollowingList(Member member, Long lastFollowId) {

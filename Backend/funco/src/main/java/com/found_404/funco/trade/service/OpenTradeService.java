@@ -96,6 +96,7 @@ public class OpenTradeService {
                 return;
             }
             optionalHoldingCoin.get().decreaseVolume(trade.getVolume());
+            trade.getMember().increaseCash(trade.getOrderCash());
         }
     }
 

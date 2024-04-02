@@ -126,7 +126,8 @@ public class AssetService {
 
 		// DTO가 담긴 리스트를 date 순으로 정렬
 		return historyResponses.stream()
-				.sorted(Comparator.comparing(HistoryResponse::date).reversed()).collect(Collectors.toList());
+				.sorted(Comparator.comparing(HistoryResponse::date).reversed())
+				.collect(Collectors.toList());
 	}
 
 

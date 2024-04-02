@@ -20,11 +20,10 @@ public class QueryDslTradeRepositoryImpl implements QueryDslTradeRepository {
 
 
     @Override
-    public List<Trade> findMyTradeHistoryByTicker(Long memberId, Boolean status, String ticker, Pageable pageable) {
+    public List<Trade> findMyTradeHistoryByTicker(Long memberId, String ticker, Pageable pageable) {
         return jpaQueryFactory
                 .selectFrom(trade)
                 .where(trade.member.id.eq(memberId),
-                        filterStatus(status),
                         filterTicker(ticker))
                 .orderBy(trade.updatedAt.desc())
                 .limit(pageable.getPageSize())
@@ -36,7 +35,4 @@ public class QueryDslTradeRepositoryImpl implements QueryDslTradeRepository {
         return Objects.nonNull(ticker) ? trade.ticker.eq(ticker) : null;
     }
 
-    private Predicate filterStatus(Boolean status) {
-        return Objects.nonNull(status) ? trade.status.eq(status) : null;
-    }
 }

@@ -36,26 +36,20 @@ public class OpenTrade extends BaseEntity {
     @Comment("가격")
     private Long price;
 
-    @Comment("팔로우 여부")
-    private Boolean status;
-
     @Builder
-    public OpenTrade(Member member, String ticker, TradeType tradeType, Double volume, Long orderCash, Long price,
-                 Boolean status) {
+    public OpenTrade(Member member, String ticker, TradeType tradeType, Double volume, Long orderCash, Long price) {
         this.member = member;
         this.ticker = ticker;
         this.tradeType = tradeType;
         this.volume = volume;
         this.orderCash = orderCash;
         this.price = price;
-        this.status = status;
     }
 
     public static Trade toTrade(OpenTrade openTrade) {
         return Trade.builder()
                 .ticker(openTrade.getTicker())
                 .volume(openTrade.getVolume())
-                .status(openTrade.getStatus())
                 .price(openTrade.getPrice())
                 .orderCash(openTrade.getOrderCash())
                 .tradeType(openTrade.getTradeType())

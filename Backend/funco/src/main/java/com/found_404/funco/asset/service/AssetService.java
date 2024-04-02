@@ -77,7 +77,7 @@ public class AssetService {
 		List<HistoryResponse> historyResponses = new ArrayList<>();
 
 		// 직접 투자
-		List<Trade> trades = tradeRepository.findAllByMemberAndStatusFalse(member);
+		List<Trade> trades = tradeRepository.findAllByMember(member);
 		trades.forEach(trade -> {
 			HistoryResponse response = HistoryResponse.builder()
 					.date(trade.getCreatedAt())
@@ -101,7 +101,7 @@ public class AssetService {
 					.name(following.getFollower().getNickname())
 					.assetType(AssetType.FOLLOW)
 					.tradeType("FOLLOWING")
-					.volume((double) 1)
+					.volume(1d)
 					.orderCash(following.getInvestment())
 					.settlement(following.getSettlement())
 					.build();
@@ -117,7 +117,7 @@ public class AssetService {
 					.name(follower.getFollower().getNickname())
 					.assetType(AssetType.FOLLOW)
 					.tradeType("FOLLOWER")
-					.volume((double) 1)
+					.volume(1d)
 					.orderCash(follower.getInvestment())
 					.commission(follower.getCommission())
 					.build();

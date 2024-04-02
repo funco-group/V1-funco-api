@@ -1,5 +1,6 @@
 package com.found_404.funco.follow.controller;
 
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -43,15 +44,22 @@ public class FollowController {
 
 	@GetMapping("/following")
 	public ResponseEntity<FollowingListResponse> getFollowingList(@AuthenticationPrincipal Member member,
-		@RequestParam(required = false) Long lastFollowId) {
+																  @RequestParam(required = false) Long lastFollowId) {
 		return ResponseEntity.status(HttpStatus.OK).body(followService.readFollowingList(member, lastFollowId));
 	}
 
 	@GetMapping("/follower")
 	public ResponseEntity<FollowerListResponse> getFollowerList(@AuthMemberId Long memberId,
-		@RequestParam String settled,
-		@RequestParam(required = false) Long lastFollowId) {
+																@RequestParam String settled,
+																@RequestParam(required = false) Long lastFollowId) {
 		return ResponseEntity.status(HttpStatus.OK)
-			.body(followService.readFollowerList(memberId, settled, lastFollowId));
+				.body(followService.readFollowerList(memberId, settled, lastFollowId));
+	}
+
+	@GetMapping("/follow/{followId}/trades")
+	public ResponseEntity<?> getFollowTrades(@AuthenticationPrincipal Member member,
+											 @PathVariable Long followId, Pageable pageable) {
+
+		return ResponseEntity.ok(followService.getFollowTrades(member, pageable, followId));
 	}
 }

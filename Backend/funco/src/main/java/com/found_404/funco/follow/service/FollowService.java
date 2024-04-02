@@ -12,6 +12,8 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import com.found_404.funco.follow.dto.FollowTradeDto;
+import com.found_404.funco.notification.domain.type.NotificationType;
+import com.found_404.funco.notification.service.NotificationService;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -55,6 +57,8 @@ public class FollowService {
 	private static final double FOLLOW_FEE = 0.03;
 	private static final int PAGE_SIZE = 10;
 	private static final long PERCENT = 100L;
+
+	private final NotificationService notificationService;
 
 	@Transactional
 	public void createFollow(FollowingRequest request, Long memberId) {
@@ -156,6 +160,9 @@ public class FollowService {
 		followRepository.save(follow);
 		followingCoinRepository.saveAll(followingCoinFollowTradeMap.keySet());
 		followTradeRepository.saveAll(followingCoinFollowTradeMap.values());
+
+		// 알림
+		notificationService.sendNotification(followingMember.getId(), NotificationType.FOLLOW, followerMember.getNickname() + "님이 " + investment + "원 팔로우하셨습니다.");
 	}
 
 	@Transactional
@@ -232,6 +239,9 @@ public class FollowService {
 		// 데이터 insert
 		followingCoinRepository.deleteAll(followingCoins);
 		followTradeRepository.saveAll(followTrades);
+
+		// 알림
+		notificationService.sendNotification(followingMember.getId(), NotificationType.SETTLE, followerMember.getNickname() + "님이 팔로우 정산하였습니다. 수수료 수익: " + commission + "원");
 	}
 
 	public FollowingListResponse readFollowingList(Member member, Long lastFollowId) {

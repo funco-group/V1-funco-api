@@ -1,6 +1,8 @@
 package com.found_404.funco.trade.service;
 
 import com.found_404.funco.follow.service.FollowTradeService;
+import com.found_404.funco.notification.domain.type.NotificationType;
+import com.found_404.funco.notification.service.NotificationService;
 import com.found_404.funco.trade.domain.HoldingCoin;
 import com.found_404.funco.trade.domain.OpenTrade;
 import com.found_404.funco.trade.domain.Trade;
@@ -25,6 +27,7 @@ public class OpenTradeService {
     private final HoldingCoinRepository holdingCoinRepository;
     private final OpenTradeRepository openTradeRepository;
     private final FollowTradeService followTradeService;
+    private final NotificationService notificationService;
 
     @Async
     @Transactional
@@ -50,8 +53,23 @@ public class OpenTradeService {
         // 자산 업데이트
         trades.forEach(this::processAsset);
 
+        for (Trade trade : trades) {
+            notificationService.sendNotification(trade.getMember().getId(), trade.getTradeType().equals(TradeType.BUY) ? NotificationType.BUY : NotificationType.SELL
+                    , getMessage(trade));
+        }
+
         // 팔로우 구매
         followTradeService.followTrade(trades);
+    }
+
+    private String getMessage(Trade trade) {
+        StringBuilder message = new StringBuilder();
+        message.append(trade.getVolume()).append(" ")
+                .append(trade.getTicker()).append(" ")
+                .append(trade.getPrice()).append("원 ")
+                .append(trade.getTradeType().equals(TradeType.BUY) ? "매수" : "매도").append(" 체결되었습니다.");
+
+        return message.toString();
     }
 
     private void processAsset(Trade trade) {

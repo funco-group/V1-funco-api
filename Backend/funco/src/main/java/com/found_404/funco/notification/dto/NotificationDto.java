@@ -11,7 +11,7 @@ public record NotificationDto(
         Long id,
         NotificationType notificationType,
         String message,
-        Boolean readYn,
+        Boolean isRead,
         LocalDateTime notificationDate
 ) {
     public static NotificationDto fromEntity(Notification notification) {
@@ -19,7 +19,7 @@ public record NotificationDto(
                 .id(notification.getId())
                 .notificationType(notification.getType())
                 .message(notification.getMessage())
-                .readYn(notification.getReadYn())
+                .isRead(notification.getReadYn())
                 .notificationDate(notification.getCreatedAt())
                 .build();
     }

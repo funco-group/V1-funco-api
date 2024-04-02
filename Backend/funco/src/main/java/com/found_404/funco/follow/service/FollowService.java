@@ -87,6 +87,10 @@ public class FollowService {
 		// 부모의 보유 코인들
 		List<HoldingCoin> holdingCoins = holdingCoinRepository.findHoldingCoinByMember(followingMember);
 
+		for (HoldingCoin holdingCoin : holdingCoins) {
+			log.info("부모 보유 코인들 : {}", holdingCoin.getTicker());
+		}
+
 		// 부모의 보유 코인 별 현재 시세 가격
 		Map<String, Long> followingCryptoPriceMap = cryptoPrice.getTickerPriceMap(holdingCoins.stream()
 			.map(HoldingCoin::getTicker)
@@ -110,8 +114,8 @@ public class FollowService {
 			.collect(Collectors.toMap(Map.Entry::getKey,
 				entry -> divide(entry.getValue(), asset, NORMAL_SCALE)));
 
-		// 팔로우의 가용 현금 = 부모의
-		Long followerCash = (long)divide(followingCash, asset, CASH_SCALE);
+		// 팔로우의 가용 현금
+		Long followerCash = (long)multiple(investment, divide(followingCash, asset, NORMAL_SCALE), CASH_SCALE);
 
 		// 팔로우 생성
 		Follow follow = Follow.builder()
@@ -218,11 +222,11 @@ public class FollowService {
 		follow.settleFollow(commission, returnRate, LocalDateTime.now(), settlement);
 
 		// follower member update
-		followerMember.increaseCash(settlement);
+		followerMember.settleCash(settlement);
 
 		// following member update
 		if (commission > 0) {
-			followingMember.increaseCash(commission);
+			followingMember.settleCash(commission);
 		}
 
 		// 데이터 insert

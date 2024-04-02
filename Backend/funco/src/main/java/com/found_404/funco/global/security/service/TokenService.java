@@ -1,7 +1,6 @@
 package com.found_404.funco.global.security.service;
 
 import static com.found_404.funco.global.security.exception.SecurityErrorCode.*;
-import static com.found_404.funco.member.exception.MemberErrorCode.*;
 import static java.util.concurrent.TimeUnit.*;
 
 import java.util.ArrayList;
@@ -26,7 +25,6 @@ import com.found_404.funco.auth.type.OauthServerType;
 import com.found_404.funco.global.security.exception.SecurityException;
 import com.found_404.funco.member.domain.Member;
 import com.found_404.funco.member.domain.repository.MemberRepository;
-import com.found_404.funco.member.exception.MemberException;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -94,7 +92,7 @@ public class TokenService {
 		Long memberId = readMemberId(token);
 
 		Member member = memberRepository.findById(memberId)
-			.orElseThrow(() -> new MemberException(NOT_FOUND_MEMBER));
+			.orElseThrow(() -> new SecurityException(MEMBER_NOT_FOUND, HttpStatus.UNAUTHORIZED));
 
 		List<GrantedAuthority> grantedAuthorities = new ArrayList<>();
 		grantedAuthorities.add(new SimpleGrantedAuthority(member.getNickname()));
@@ -130,7 +128,7 @@ public class TokenService {
 				tokenRedisTemplate.opsForHash().get(oauthServerId, REDIS_REFRESH_TOKEN_KEY)).toString();
 
 			Member member = memberRepository.findByOauthId(new OauthId(oauthServerId, OauthServerType.GOOGLE))
-				.orElseThrow(() -> new MemberException(NOT_FOUND_MEMBER));
+				.orElseThrow(() -> new SecurityException(MEMBER_NOT_FOUND, HttpStatus.UNAUTHORIZED));
 
 			if (!redisRefreshToken.equals(refreshToken)) {// 리프레시 토큰 만료 시 헤더에서 삭제
 				deleteHeader(response);

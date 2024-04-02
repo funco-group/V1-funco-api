@@ -56,7 +56,7 @@ public class FollowController {
 				.body(followService.readFollowerList(memberId, settled, lastFollowId));
 	}
 
-	@GetMapping("/follow/{followId}/trades")
+	@GetMapping("/{followId}/trades")
 	public ResponseEntity<?> getFollowTrades(@AuthenticationPrincipal Member member,
 											 @PathVariable Long followId, Pageable pageable) {
 

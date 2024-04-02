@@ -74,6 +74,7 @@ public class OpenTradeService {
 
     private void processAsset(Trade trade) {
         Optional<HoldingCoin> optionalHoldingCoin = holdingCoinRepository.findByMemberAndTicker(trade.getMember(), trade.getTicker());
+        log.info("asset에러부분, member:{}, ticker:{}, holding entity:{}", trade.getMember(), trade.getTicker(), optionalHoldingCoin);
 
         if (trade.getTradeType().equals(TradeType.BUY)) { // BUY
             HoldingCoin holdingCoin;

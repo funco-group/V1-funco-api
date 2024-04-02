@@ -23,16 +23,10 @@ public class SseEmitterService {
         SseEmitter sseEmitter = new SseEmitter(30 * 1000L); // 만료시간 톰캣 디폴트 30초
         sseEmitters.put(memberId, sseEmitter); // 에미터 저장소에 추가
 
-        log.info("new emitter added: {}", sseEmitter);
-        log.info("emitter list size: {}", sseEmitters.size());
         sseEmitter.onCompletion(() -> {
-            log.info("onCompletion callback");
             sseEmitters.remove(memberId);    // 만료되면 리스트에서 삭제
         });
-        sseEmitter.onTimeout(() -> {
-            log.info("onTimeout callback");
-            sseEmitter.complete();
-        });
+        sseEmitter.onTimeout(sseEmitter::complete);
 
         // 더미데이터 전송
         sendEmitter(sseEmitter, memberId, "open", "connect");
@@ -50,7 +44,7 @@ public class SseEmitterService {
             sseEmitter.send(SseEmitter.event()
                     .name(name) // 이벤트 이름
                     .data(new Gson().toJson(data))); // 데이터
-            log.info("member :{} 에게 event sended!", memberId);
+            log.info("member :{} 에게 event sent! : {}", memberId, data);
         } catch (IOException e) {
             sseEmitters.remove(memberId);
             log.error("SseEmitter error memberId = {}", memberId);

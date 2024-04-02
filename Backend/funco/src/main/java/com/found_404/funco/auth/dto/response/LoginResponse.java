@@ -7,6 +7,7 @@ public record LoginResponse(
 	Long memberId,
 	String nickname,
 	String profileUrl,
-	String accessToken
+	String accessToken,
+	Integer unReadCount
 ) {
 }

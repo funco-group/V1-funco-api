@@ -6,7 +6,7 @@ import java.util.List;
 
 import com.found_404.funco.statistics.domain.repository.QueryDslMonthlyStatisticsRepository;
 import com.found_404.funco.statistics.dto.response.MonthlyStatisticsResponse;
-import com.found_404.funco.statistics.dto.response.QMonthlyStatisticsResponse;
+import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
 import lombok.RequiredArgsConstructor;
@@ -19,7 +19,8 @@ public class QueryDslMonthlyStatisticsRepositoryImpl implements QueryDslMonthlyS
 	@Override
 	public List<MonthlyStatisticsResponse> findMonthlyStatisticsByYear(Long memberId, Integer year) {
 		return jpaQueryFactory.select(
-				new QMonthlyStatisticsResponse(monthlyStatistics.date.month(), monthlyStatistics.returnResult,
+				Projections.constructor(MonthlyStatisticsResponse.class, monthlyStatistics.date,
+					monthlyStatistics.returnResult,
 					monthlyStatistics.returnRate,
 					monthlyStatistics.accReturnResult, monthlyStatistics.accReturnRate, monthlyStatistics.beginningAsset,
 					monthlyStatistics.endingAsset))

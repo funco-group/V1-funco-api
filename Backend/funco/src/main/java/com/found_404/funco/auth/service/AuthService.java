@@ -2,11 +2,11 @@ package com.found_404.funco.auth.service;
 
 import java.util.Random;
 
+import com.found_404.funco.notification.service.NotificationService;
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
-import com.found_404.funco.auth.authCode.AuthCodeRequestUrlProviderComposite;
 import com.found_404.funco.auth.client.OauthMemberClientComposite;
 import com.found_404.funco.auth.dto.OauthDto;
 import com.found_404.funco.auth.dto.response.LoginResponse;
@@ -27,9 +27,9 @@ public class AuthService {
 	private final TokenService tokenService;
 
 	private final MemberRepository memberRepository;
-	private final AuthCodeRequestUrlProviderComposite authCodeRequestUrlProviderComposite;
 	private final OauthMemberClientComposite oauthMemberClientComposite;
 	private final RedisTemplate<String, Object> tokenRedisTemplate;
+	private final NotificationService notificationService;
 
 	private final long INIT_CASH = 10_000_000;
 
@@ -65,11 +65,12 @@ public class AuthService {
 		response.addHeader("Set-Cookie", cookieValue);
 
 		return LoginResponse.builder()
-			.profileUrl(member.getProfileUrl())
-			.nickname(member.getNickname())
-			.memberId(member.getId())
-			.accessToken(tokenService.createToken(member))
-			.build();
+				.profileUrl(member.getProfileUrl())
+				.nickname(member.getNickname())
+				.memberId(member.getId())
+				.accessToken(tokenService.createToken(member))
+				.unReadCount(notificationService.getUnReadCount(member.getId()))
+				.build();
 	}
 
 	private String createNickname() {

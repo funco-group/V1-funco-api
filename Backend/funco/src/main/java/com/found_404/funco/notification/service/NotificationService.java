@@ -9,20 +9,16 @@ import com.found_404.funco.notification.domain.repository.NotificationRepository
 import com.found_404.funco.notification.domain.type.NotificationType;
 import com.found_404.funco.notification.dto.NotificationDto;
 import com.found_404.funco.notification.dto.SseMessage;
-import com.google.gson.Gson;
-import lombok.Builder;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
-import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -50,9 +46,10 @@ public class NotificationService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
     public void read(Member member) {
-        notificationRepository.updateRead(member.getId());
         unReadCounts.put(member.getId(), 0);
+        notificationRepository.updateRead(member.getId());
     }
 
     public SseEmitter subscribe(Member member) {

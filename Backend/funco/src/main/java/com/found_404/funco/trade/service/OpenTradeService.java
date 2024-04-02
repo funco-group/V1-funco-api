@@ -92,6 +92,7 @@ public class OpenTradeService {
             holdingCoinRepository.save(holdingCoin);
         } else { // SELL
             if (optionalHoldingCoin.isEmpty() || optionalHoldingCoin.get().getVolume() <= trade.getVolume()) {
+                log.error("보유 개수 :{}, 팔려는 개수: {}",optionalHoldingCoin.get().getVolume(),trade.getVolume());
                 log.error("member : {}, coin: {}, sell faild 개수 부족", trade.getMember().getId(), trade.getTicker());
                 return;
             }

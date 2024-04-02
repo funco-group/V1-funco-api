@@ -10,7 +10,7 @@ import com.found_404.funco.notification.domain.type.NotificationType;
 import com.found_404.funco.notification.dto.NotificationDto;
 import com.found_404.funco.notification.dto.SseMessage;
 import lombok.RequiredArgsConstructor;
-import org.jetbrains.annotations.NotNull;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -25,6 +25,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class NotificationService {
     private final NotificationRepository notificationRepository;
@@ -57,6 +58,7 @@ public class NotificationService {
     }
 
     public void sendNotification(Long memberId, NotificationType notificationType, String message) {
+        log.info("{}에게 {}알림 {}", memberId, notificationType, message);
         unReadCounts.put(memberId, unReadCounts.getOrDefault(memberId, 0) + 1);
 
         Notification notification = Notification.builder()

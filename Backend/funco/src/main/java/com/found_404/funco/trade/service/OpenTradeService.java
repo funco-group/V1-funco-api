@@ -1,6 +1,7 @@
 package com.found_404.funco.trade.service;
 
 import com.found_404.funco.follow.service.FollowTradeService;
+import com.found_404.funco.member.domain.repository.MemberRepository;
 import com.found_404.funco.notification.domain.type.NotificationType;
 import com.found_404.funco.notification.service.NotificationService;
 import com.found_404.funco.trade.domain.HoldingCoin;
@@ -29,6 +30,7 @@ public class OpenTradeService {
     private final OpenTradeRepository openTradeRepository;
     private final FollowTradeService followTradeService;
     private final NotificationService notificationService;
+    private final MemberRepository memberRepository;
 
     @Async
     public void processTrade(List<Long> concludingTradeIds, String ticker, boolean removeTicker) {
@@ -97,6 +99,7 @@ public class OpenTradeService {
             }
             optionalHoldingCoin.get().decreaseVolume(trade.getVolume());
             trade.getMember().increaseCash(trade.getOrderCash());
+            memberRepository.save(trade.getMember());
         }
     }
 

@@ -35,7 +35,7 @@ public class MemberController {
 	}
 
 	// 소개 수정
-	@PatchMapping("/nickname")
+	@PatchMapping("/introduction")
 	public ResponseEntity<?> updateNickname(@AuthMemberId Long loginMemberId,
 											@RequestBody @Valid RequestIntroduction requestIntroduction) {
 		memberService.updateIntroduce(loginMemberId, requestIntroduction.introduction());

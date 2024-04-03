@@ -14,6 +14,8 @@ import com.found_404.funco.member.dto.MemberInfo;
 import com.found_404.funco.member.dto.QMemberInfo;
 import com.found_404.funco.trade.dto.HoldingCoinsDto;
 import com.found_404.funco.trade.dto.QHoldingCoinsDto;
+import com.found_404.funco.trade.dto.QRecentTradedCoin;
+import com.found_404.funco.trade.dto.RecentTradedCoin;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
 import lombok.RequiredArgsConstructor;
@@ -70,9 +72,9 @@ public class MemberCustomRepositoryImpl implements MemberCustomRepository {
 	}
 
 	@Override
-	public List<String> findRecentTradedCoinByMemberId(Long memberId) {
+	public List<RecentTradedCoin> findRecentTradedCoinByMemberId(Long memberId) {
 		return jpaQueryFactory
-			.select(trade.ticker)
+			.select(new QRecentTradedCoin(trade.ticker, trade.createdAt))
 			.distinct()
 			.from(trade)
 			.where(trade.member.id.eq(memberId))

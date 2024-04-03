@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.found_404.funco.member.dto.MemberInfo;
 import com.found_404.funco.trade.dto.HoldingCoinsDto;
+import com.found_404.funco.trade.dto.RecentTradedCoin;
 
 public interface MemberCustomRepository {
 	List<HoldingCoinsDto> findHoldingCoinsByMemberId(Long memberId);
@@ -16,5 +17,5 @@ public interface MemberCustomRepository {
 
 	Boolean isFollowedByMemberId(Long loginId, Long memberId);
 
-	List<String> findRecentTradedCoinByMemberId(Long memberId);
+	List<RecentTradedCoin> findRecentTradedCoinByMemberId(Long memberId);
 }

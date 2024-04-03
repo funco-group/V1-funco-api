@@ -3,6 +3,7 @@ package com.found_404.funco.member.domain.repository.impl;
 import static com.found_404.funco.follow.domain.QFollow.*;
 import static com.found_404.funco.member.domain.QMember.*;
 import static com.found_404.funco.trade.domain.QHoldingCoin.*;
+import static com.found_404.funco.trade.domain.QTrade.*;
 
 import java.util.List;
 
@@ -60,8 +61,20 @@ public class MemberCustomRepositoryImpl implements MemberCustomRepository {
 	public Boolean isFollowedByMemberId(Long loginId, Long memberId) {
 		return !jpaQueryFactory
 			.from(follow)
-			.where(follow.follower.id.eq(memberId),
-				follow.following.id.eq(loginId))
+			.where(follow.follower.id.eq(loginId),
+				follow.following.id.eq(memberId))
 			.fetch().isEmpty();
+	}
+
+	@Override
+	public List<String> findRecentTradedCoinByMemberId(Long memberId) {
+		return jpaQueryFactory
+			.select(trade.ticker)
+			.distinct()
+			.from(trade)
+			.where(trade.member.id.eq(memberId))
+			.orderBy(trade.createdAt.desc())
+			.limit(3)
+			.fetch();
 	}
 }

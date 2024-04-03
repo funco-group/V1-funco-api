@@ -133,7 +133,7 @@ public class FollowService {
 			.build();
 
 		// 팔로잉 코인, 거래 내역 생성
-		/**
+		/*
 		 * 팔로잉 코인 갯수 = (초기 투자금 * 부모의 전체 자산에 대해 해당 코인이 차지하는 비율) / 해당 코인의 현재 시세
 		 * 주문 가격 = 초기 투자금 * 부모의 해당 코인의 전체 자산에 대한 비율 => 부모의 코인 비율만큼 사는 것이기 때문
 		 * */
@@ -164,7 +164,7 @@ public class FollowService {
 		// 알림
 		StringBuilder message = new StringBuilder();
 		message.append(followerMember.getNickname()).append("님에게 ")
-				.append(String.format("%,d", investment)).append("원을 투자 받으셨어요!!");
+				.append(String.format("%,d", investment)).append("원을 투자 받으셨습니다.");
 		notificationService.sendNotification(followingMember.getId(), NotificationType.FOLLOW, message.toString());
 	}
 
@@ -218,7 +218,7 @@ public class FollowService {
 		// 수수료
 		long commission =
 			proceed - follow.getInvestment() > 0 ?
-				(long)multiple(proceed - follow.getInvestment(), FOLLOW_FEE, CASH_SCALE) : 0;
+				(long) multiple(proceed - follow.getInvestment(), FOLLOW_FEE, CASH_SCALE) : 0;
 
 		// 정산 금액
 		long settlement = proceed - commission;
@@ -246,8 +246,8 @@ public class FollowService {
 		// 알림
 		StringBuilder message = new StringBuilder();
 		message.append(followerMember.getNickname()).append("님이 투자금액 ")
-				.append(String.format("%,d", follow.getInvestment())).append("원을 정산하셨어요! ")
-				.append(String.format("%,d", commission)).append("원의 커미션을 받았습니다!");
+				.append(String.format("%,d", follow.getInvestment())).append("원을 정산하셨습니다. ")
+				.append(String.format("%,d", commission)).append("원의 수수료를 받았습니다.");
 		notificationService.sendNotification(followingMember.getId(), NotificationType.SETTLE, message.toString());
 
 	}
@@ -288,7 +288,7 @@ public class FollowService {
 		return memberRepository.findById(memberId).orElseThrow(() -> new MemberException(NOT_FOUND_MEMBER));
 	}
 
-	public List<FollowTradeDto> getFollowTrades(Member member, Pageable pageable, Long followId) {
+	public List<FollowTradeDto> getFollowTrades(Pageable pageable, Long followId) {
 		Follow follow = followRepository.getReferenceById(followId);
 
 		return followTradeRepository.findByFollow(pageable, follow)

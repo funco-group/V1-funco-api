@@ -57,9 +57,8 @@ public class FollowController {
 	}
 
 	@GetMapping("/{followId}/trades")
-	public ResponseEntity<?> getFollowTrades(@AuthenticationPrincipal Member member,
-											 @PathVariable Long followId, Pageable pageable) {
+	public ResponseEntity<?> getFollowTrades(@PathVariable Long followId, Pageable pageable) {
 
-		return ResponseEntity.ok(followService.getFollowTrades(member, pageable, followId));
+		return ResponseEntity.ok(followService.getFollowTrades(pageable, followId));
 	}
 }

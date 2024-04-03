@@ -74,9 +74,16 @@ public class MemberService {
 
 	@Transactional
 	public void updateNickname(Long loginMemberId, String nickname) {
-		Member member = memberRepository.findById(loginMemberId)
-				.orElseThrow(() -> new MemberException(MemberErrorCode.NOT_FOUND_MEMBER));
+		getMember(loginMemberId).updateNickname(nickname);
+	}
 
-		member.updateNickname(nickname);
+	@Transactional
+	public void updateIntroduce(Long loginMemberId, String introduction) {
+		getMember(loginMemberId).updateIntroduction(introduction);
+	}
+
+	private Member getMember(Long loginMemberId) {
+        return memberRepository.findById(loginMemberId)
+				.orElseThrow(() -> new MemberException(MemberErrorCode.NOT_FOUND_MEMBER));
 	}
 }

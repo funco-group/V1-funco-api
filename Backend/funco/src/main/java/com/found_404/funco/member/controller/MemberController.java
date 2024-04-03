@@ -1,5 +1,6 @@
 package com.found_404.funco.member.controller;
 
+import com.found_404.funco.member.dto.RequestIntroduction;
 import com.found_404.funco.member.dto.RequestNickName;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -34,6 +35,11 @@ public class MemberController {
 	}
 
 	// 소개 수정
-
+	@PatchMapping("/nickname")
+	public ResponseEntity<?> updateNickname(@AuthMemberId Long loginMemberId,
+											@RequestBody @Valid RequestIntroduction requestIntroduction) {
+		memberService.updateIntroduce(loginMemberId, requestIntroduction.introduction());
+		return ResponseEntity.ok().build();
+	}
 
 }

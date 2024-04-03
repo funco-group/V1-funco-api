@@ -35,7 +35,7 @@ public class MemberService {
 		List<HoldingCoinsDto> holdingCoinsDto = memberRepository.findHoldingCoinsByMemberId(memberId); // 보유 코인 정보
 		MemberInfo memberInfo = memberRepository.findMemberInfoByMemberId(memberId);
 		ZSetOperations<String, Object> zSetOperations = rankZSetRedisTemplate.opsForZSet();
-		
+
 		return MemberResponse.builder()
 			.memberId(memberId)
 			.nickname(memberInfo.nickname())
@@ -48,8 +48,8 @@ public class MemberService {
 				.coins(holdingCoinsDto)
 				.build())
 			.topCoins(memberRepository.findRecentTradedCoinByMemberId(memberId))
-			.followerCash(memberRepository.getFollowingCashByMemberId(memberId))
-			.followingCash(memberRepository.getFollowerCashByMemberId(memberId))
+			.followerCash(memberRepository.getFollowerCashByMemberId(memberId))
+			.followingCash(memberRepository.getFollowingCashByMemberId(memberId))
 			.isFollow(memberRepository.isFollowedByMemberId(loginMemberId, memberId))
 			.build();
 	}

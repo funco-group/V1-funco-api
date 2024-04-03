@@ -93,8 +93,7 @@ public class RankService {
 		followingCoinInfos.forEach(info -> {
 			long totalAsset = info.cash() + (holdingCoins.getOrDefault(info.memberInfo().id(), 0L)) +
 				rankCustomRepository.getInvestmentByMemberId(info.memberInfo().id());
-			System.out.println("memberInfo id : " + info.memberInfo().id());
-			System.out.println(rankCustomRepository.getInvestmentByMemberId(info.memberInfo().id()));
+			
 			updateRankingInRedis(RankResponse.builder()
 				.member(info.memberInfo())
 				.returnRate(

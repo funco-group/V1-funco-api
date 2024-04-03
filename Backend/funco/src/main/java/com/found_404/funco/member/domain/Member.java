@@ -94,4 +94,8 @@ public class Member extends BaseEntity {
 	public void updateIntroduction(String introduction) {
 		this.introduction = introduction;
 	}
+
+	public void withdraw() {
+		this.status = MemberStatus.WITHDRAW;
+	}
 }

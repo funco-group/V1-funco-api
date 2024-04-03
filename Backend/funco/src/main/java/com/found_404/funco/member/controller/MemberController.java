@@ -21,7 +21,7 @@ public class MemberController {
 	// 마이 페이지 조회
 	@GetMapping("/{memberId}")
 	public ResponseEntity<MemberResponse> getMember(@AuthMemberId Long loginMemberId,
-		@PathVariable Long memberId
+													@PathVariable Long memberId
 	) {
 		return ResponseEntity.ok(memberService.readMember(loginMemberId, memberId));
 	}
@@ -42,4 +42,10 @@ public class MemberController {
 		return ResponseEntity.ok().build();
 	}
 
+	// 회원 탈퇴
+	@PatchMapping("/withdraw")
+	public ResponseEntity<?> withdraw(@AuthMemberId Long loginMemberId) {
+		memberService.withdraw(loginMemberId);
+		return ResponseEntity.ok().build();
+	}
 }

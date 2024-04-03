@@ -27,11 +27,11 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class MemberService {
 	private final MemberRepository memberRepository;
 	private final RedisTemplate<String, Object> rankZSetRedisTemplate;
 
+	@Transactional(readOnly = true)
 	public MemberResponse readMember(Long loginMemberId, Long memberId) {
 		List<HoldingCoinsDto> holdingCoinsDto = memberRepository.findHoldingCoinsByMemberId(memberId); // 보유 코인 정보
 		MemberInfo memberInfo = memberRepository.findMemberInfoByMemberId(memberId);
@@ -82,8 +82,13 @@ public class MemberService {
 		getMember(loginMemberId).updateIntroduction(introduction);
 	}
 
+	@Transactional
+	public void withdraw(Long loginMemberId) {
+		getMember(loginMemberId).withdraw();
+	}
+
 	private Member getMember(Long loginMemberId) {
-        return memberRepository.findById(loginMemberId)
+		return memberRepository.findById(loginMemberId)
 				.orElseThrow(() -> new MemberException(MemberErrorCode.NOT_FOUND_MEMBER));
 	}
 }

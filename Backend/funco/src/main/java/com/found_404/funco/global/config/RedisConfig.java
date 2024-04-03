@@ -78,16 +78,6 @@ public class RedisConfig {
 		return redisTemplate;
 	}
 
-	// 최근 거래된 코인 템플릿
-	@Bean
-	public RedisTemplate<String, String> recentTradedCoinRedisTemplate() {
-		RedisTemplate<String, String> redisTemplate = new RedisTemplate<>();
-		redisTemplate.setConnectionFactory(createLettuceConnectionFactory(RECENT_TRADED_COIN.ordinal()));
-		redisTemplate.setKeySerializer(new StringRedisSerializer());
-		redisTemplate.setValueSerializer(new StringRedisSerializer());
-		return redisTemplate;
-	}
-
 	// 관심코인 zset 템플릿
 	@Bean
 	public RedisTemplate<String, Object> favoriteCoinZSetRedisTemplate() {

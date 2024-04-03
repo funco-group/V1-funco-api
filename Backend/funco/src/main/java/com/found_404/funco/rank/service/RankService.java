@@ -63,7 +63,7 @@ public class RankService {
 	}
 
 	// 배치 전 - 스케줄링 돌릴 메서드
-	@Scheduled(cron = "0 0/30 * * * *", zone = "Asia/Seoul") // 30분마다 실행
+	@Scheduled(cron = "0 0/1 * * * *", zone = "Asia/Seoul") // 1분마다 실행
 	@PostConstruct
 	public void runSchedulingProcess() {
 		log.debug("스케줄링 작업 시간 : " + LocalDateTime.now());
@@ -93,7 +93,7 @@ public class RankService {
 		followingCoinInfos.forEach(info -> {
 			long totalAsset = info.cash() + (holdingCoins.getOrDefault(info.memberInfo().id(), 0L)) +
 				rankCustomRepository.getInvestmentByMemberId(info.memberInfo().id());
-			
+
 			updateRankingInRedis(RankResponse.builder()
 				.member(info.memberInfo())
 				.returnRate(

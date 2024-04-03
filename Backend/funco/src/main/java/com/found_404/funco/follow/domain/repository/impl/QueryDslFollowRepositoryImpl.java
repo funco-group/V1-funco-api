@@ -34,7 +34,8 @@ public class QueryDslFollowRepositoryImpl implements QueryDslFollowRepository {
 	@Override
 	public SliceFollowingInfo findFollowingInfoListByMemberId(Long memberId, Long lastFollowId, int pageSize) {
 		List<QueryFollowingInfoResult> queryFollowingInfoResult = jpaQueryFactory
-			.select(Projections.constructor(QueryFollowingInfoResult.class, follow.id, follow.following.nickname,
+			.select(Projections.constructor(QueryFollowingInfoResult.class, follow.id, follow.following.id,
+				follow.following.nickname,
 				follow.investment, follow.createdAt, follow.cash))
 			.from(follow)
 			.where(follow.follower.id.eq(memberId), follow.settled.eq(false), ltFollowId(lastFollowId))
@@ -58,6 +59,7 @@ public class QueryDslFollowRepositoryImpl implements QueryDslFollowRepository {
 		List<FollowingInfo> followingInfoList = queryFollowingInfoResult.stream()
 			.map(result -> FollowingInfo.builder()
 				.followId(result.followId())
+				.followingId(result.followingId())
 				.nickname(result.nickname())
 				.investment(result.investment())
 				.followedAt(result.followedAt())

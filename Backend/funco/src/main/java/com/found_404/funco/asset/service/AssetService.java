@@ -6,21 +6,24 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import com.found_404.funco.asset.dto.response.HistoryResponse;
-import com.found_404.funco.asset.dto.type.AssetType;
-import com.found_404.funco.trade.domain.Trade;
-import com.found_404.funco.trade.domain.repository.TradeRepository;
 import org.springframework.stereotype.Service;
 
 import com.found_404.funco.asset.dto.HoldingCoinInfo;
 import com.found_404.funco.asset.dto.response.CashResponse;
 import com.found_404.funco.asset.dto.response.CryptoResponse;
+import com.found_404.funco.asset.dto.response.HistoryResponse;
 import com.found_404.funco.asset.dto.response.TotalAssetResponse;
+import com.found_404.funco.asset.dto.type.AssetType;
 import com.found_404.funco.follow.domain.Follow;
 import com.found_404.funco.follow.domain.repository.FollowRepository;
 import com.found_404.funco.member.domain.Member;
+import com.found_404.funco.member.domain.repository.MemberRepository;
+import com.found_404.funco.member.exception.MemberErrorCode;
+import com.found_404.funco.member.exception.MemberException;
 import com.found_404.funco.trade.domain.HoldingCoin;
+import com.found_404.funco.trade.domain.Trade;
 import com.found_404.funco.trade.domain.repository.HoldingCoinRepository;
+import com.found_404.funco.trade.domain.repository.TradeRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -28,16 +31,18 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class AssetService {
 
+	private final MemberRepository memberRepository;
 	private final FollowRepository followRepository;
 	private final HoldingCoinRepository holdingCoinRepository;
 	private final TradeRepository tradeRepository;
-
 
 	public CashResponse getMemberCash(Member member) {
 		return new CashResponse(member.getCash());
 	}
 
-	public TotalAssetResponse getMemberTotalAsset(Member member) {
+	public TotalAssetResponse getMemberTotalAsset(Long memberId) {
+
+		Member member = findByMemberId(memberId);
 
 		// 가용 현금
 		Long memberCash = member.getCash();
@@ -80,14 +85,14 @@ public class AssetService {
 		List<Trade> trades = tradeRepository.findAllByMember(member);
 		trades.forEach(trade -> {
 			HistoryResponse response = HistoryResponse.builder()
-					.date(trade.getCreatedAt())
-					.name(trade.getTicker())
-					.assetType(AssetType.COIN)
-					.tradeType(trade.getTradeType().toString())
-					.volume(trade.getVolume())
-					.orderCash(trade.getOrderCash())
-					.price(trade.getPrice())
-					.build();
+				.date(trade.getCreatedAt())
+				.name(trade.getTicker())
+				.assetType(AssetType.COIN)
+				.tradeType(trade.getTradeType().toString())
+				.volume(trade.getVolume())
+				.orderCash(trade.getOrderCash())
+				.price(trade.getPrice())
+				.build();
 			historyResponses.add(response);
 		});
 
@@ -97,38 +102,40 @@ public class AssetService {
 
 		followings.forEach(following -> {
 			HistoryResponse response = HistoryResponse.builder()
-					.date(following.getSettleDate())
-					.name(following.getFollower().getNickname())
-					.assetType(AssetType.FOLLOW)
-					.tradeType("FOLLOWING")
-					.volume(1d)
-					.orderCash(following.getInvestment())
-					.settlement(following.getSettlement())
-					.build();
+				.date(following.getSettleDate())
+				.name(following.getFollower().getNickname())
+				.assetType(AssetType.FOLLOW)
+				.tradeType("FOLLOWING")
+				.volume(1d)
+				.orderCash(following.getInvestment())
+				.settlement(following.getSettlement())
+				.build();
 			historyResponses.add(response);
 		});
-
 
 		// 해당 멤버를 팔로우 한 사람(팔로잉)이 정산한 거래 내역
 		List<Follow> followers = followRepository.findAllByFollowingAndSettledTrue(member);
 		followers.forEach(follower -> {
 			HistoryResponse response = HistoryResponse.builder()
-					.date(follower.getSettleDate())
-					.name(follower.getFollower().getNickname())
-					.assetType(AssetType.FOLLOW)
-					.tradeType("FOLLOWER")
-					.volume(1d)
-					.orderCash(follower.getInvestment())
-					.commission(follower.getCommission())
-					.build();
+				.date(follower.getSettleDate())
+				.name(follower.getFollower().getNickname())
+				.assetType(AssetType.FOLLOW)
+				.tradeType("FOLLOWER")
+				.volume(1d)
+				.orderCash(follower.getInvestment())
+				.commission(follower.getCommission())
+				.build();
 			historyResponses.add(response);
 		});
 
 		// DTO가 담긴 리스트를 date 순으로 정렬
 		return historyResponses.stream()
-				.sorted(Comparator.comparing(HistoryResponse::date).reversed())
-				.collect(Collectors.toList());
+			.sorted(Comparator.comparing(HistoryResponse::date).reversed())
+			.collect(Collectors.toList());
 	}
 
-
+	private Member findByMemberId(Long memberId) {
+		return memberRepository.findById(memberId)
+			.orElseThrow(() -> new MemberException(MemberErrorCode.NOT_FOUND_MEMBER));
+	}
 }

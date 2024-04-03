@@ -75,9 +75,9 @@ public class MemberCustomRepositoryImpl implements MemberCustomRepository {
 	public List<RecentTradedCoin> findRecentTradedCoinByMemberId(Long memberId) {
 		return jpaQueryFactory
 			.select(new QRecentTradedCoin(trade.ticker, trade.createdAt))
-			.distinct()
 			.from(trade)
 			.where(trade.member.id.eq(memberId))
+			.groupBy(trade.ticker)
 			.orderBy(trade.createdAt.desc())
 			.limit(3)
 			.fetch();

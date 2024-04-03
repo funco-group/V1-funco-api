@@ -7,12 +7,12 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import com.found_404.funco.member.domain.Member;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.found_404.funco.member.domain.Member;
 import com.found_404.funco.member.domain.repository.MemberRepository;
 import com.found_404.funco.member.dto.MemberAssetInfo;
 import com.found_404.funco.member.dto.MemberInfo;
@@ -88,6 +88,6 @@ public class MemberService {
 
 	private Member getMember(Long loginMemberId) {
 		return memberRepository.findById(loginMemberId)
-				.orElseThrow(() -> new MemberException(MemberErrorCode.NOT_FOUND_MEMBER));
+			.orElseThrow(() -> new MemberException(MemberErrorCode.NOT_FOUND_MEMBER));
 	}
 }

@@ -11,4 +11,6 @@ public interface RankCustomRepository {
 	List<FollowingCoinInfo> findFollowingCoinInfo();
 
 	List<String> findHoldingCoin();
+
+	Long getInvestmentByMemberId(Long memberId);
 }

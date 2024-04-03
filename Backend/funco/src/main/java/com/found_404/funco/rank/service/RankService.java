@@ -89,11 +89,12 @@ public class RankService {
 		// 팔로워 자산 계산
 		List<FollowingCoinInfo> followingCoinInfos = rankCustomRepository.findFollowingCoinInfo();
 
-		// DecimalCalculator.
-
 		// 랭킹 업데이트
 		followingCoinInfos.forEach(info -> {
-			long totalAsset = info.cash() + (holdingCoins.getOrDefault(info.memberInfo().id(), 0L));
+			long totalAsset = info.cash() + (holdingCoins.getOrDefault(info.memberInfo().id(), 0L)) +
+				rankCustomRepository.getInvestmentByMemberId(info.memberInfo().id());
+			System.out.println("memberInfo id : " + info.memberInfo().id());
+			System.out.println(rankCustomRepository.getInvestmentByMemberId(info.memberInfo().id()));
 			updateRankingInRedis(RankResponse.builder()
 				.member(info.memberInfo())
 				.returnRate(

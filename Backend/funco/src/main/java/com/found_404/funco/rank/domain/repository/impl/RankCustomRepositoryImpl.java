@@ -56,4 +56,14 @@ public class RankCustomRepositoryImpl implements RankCustomRepository {
 			.distinct()
 			.fetch();
 	}
+
+	@Override
+	public Long getInvestmentByMemberId(Long memberId) {
+		return jpaQueryFactory
+			.select(follow.investment.sum().coalesce(0L))
+			.from(follow)
+			.where(follow.follower.id.eq(memberId),
+				follow.settled.isNull().or(follow.settled.isFalse()))
+			.fetchFirst();
+	}
 }

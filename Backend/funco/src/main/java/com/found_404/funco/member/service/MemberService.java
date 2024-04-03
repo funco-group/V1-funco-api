@@ -7,6 +7,8 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.found_404.funco.member.exception.MemberErrorCode;
+import com.found_404.funco.member.exception.MemberException;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Service;
@@ -66,7 +68,7 @@ public class MemberService {
 			})
 			.findFirst()
 			.orElseGet(null);
-		// .orElseThrow(() -> new MemberException(MemberErrorCode.NOT_FOUND_MEMBER));
+		//.orElseThrow(() -> new MemberException(MemberErrorCode.NOT_FOUND_MEMBER));
 
 		return result == null ? null : index.longValue();
 	}

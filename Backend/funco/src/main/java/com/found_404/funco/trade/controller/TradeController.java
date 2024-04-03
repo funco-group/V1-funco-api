@@ -2,6 +2,7 @@ package com.found_404.funco.trade.controller;
 
 import java.util.List;
 
+import com.found_404.funco.trade.dto.OtherTradeDto;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -85,10 +86,10 @@ public class TradeController {
 
 	// 남의 체결 코인 거래 내역
 	@GetMapping("/orders/{memberId}")
-	public ResponseEntity<List<TradeDto>> getOtherOrders(@PathVariable Long memberId,
-		Pageable pageable, TradeRequest tradeRequest) {
+	public ResponseEntity<List<OtherTradeDto>> getOtherOrders(@PathVariable Long memberId,
+															  Pageable pageable) {
 
-		return ResponseEntity.ok(tradeService.getOrders(memberId, tradeRequest.ticker(), pageable));
+		return ResponseEntity.ok(tradeService.getOtherOrders(memberId, pageable));
 	}
 
 	// 미체결 거래 내역 보기

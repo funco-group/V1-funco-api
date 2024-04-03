@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import com.found_404.funco.trade.dto.OtherTradeDto;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -151,6 +152,14 @@ public class TradeService {
 			.stream()
 			.map(TradeDto::fromEntity)
 			.collect(Collectors.toList());
+	}
+
+	@Transactional(readOnly = true)
+	public List<OtherTradeDto> getOtherOrders(Long memberId, Pageable pageable) {
+		return tradeRepository.findMyTradeHistoryByTicker(memberId, null, pageable)
+				.stream()
+				.map(OtherTradeDto::fromEntity)
+				.collect(Collectors.toList());
 	}
 
 	@Transactional(readOnly = true)

@@ -1,10 +1,9 @@
 package com.found_404.funco.member.controller;
 
+import com.found_404.funco.member.dto.RequestNickName;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.found_404.funco.global.util.AuthMemberId;
 import com.found_404.funco.member.dto.response.MemberResponse;
@@ -25,4 +24,16 @@ public class MemberController {
 	) {
 		return ResponseEntity.ok(memberService.readMember(loginMemberId, memberId));
 	}
+
+	// 닉네임 변경
+	@PatchMapping("/nickname")
+	public ResponseEntity<?> updateNickname(@AuthMemberId Long loginMemberId,
+											@RequestBody @Valid RequestNickName requestNickName) {
+		memberService.updateNickname(loginMemberId, requestNickName.nickname());
+		return ResponseEntity.ok().build();
+	}
+
+	// 소개 수정
+
+
 }

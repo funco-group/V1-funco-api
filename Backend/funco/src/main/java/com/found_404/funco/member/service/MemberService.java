@@ -7,6 +7,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.found_404.funco.member.domain.Member;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Service;
@@ -69,5 +70,13 @@ public class MemberService {
 			.orElseThrow(() -> new MemberException(MemberErrorCode.NOT_FOUND_MEMBER));
 
 		return index.longValue();
+	}
+
+	@Transactional
+	public void updateNickname(Long loginMemberId, String nickname) {
+		Member member = memberRepository.findById(loginMemberId)
+				.orElseThrow(() -> new MemberException(MemberErrorCode.NOT_FOUND_MEMBER));
+
+		member.updateNickname(nickname);
 	}
 }

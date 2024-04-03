@@ -86,4 +86,8 @@ public class Member extends BaseEntity {
 	public void updateOauthId(OauthId oauthId) {
 		this.oauthId = oauthId;
 	}
+
+	public void updateNickname(String nickname) {
+		this.nickname = nickname;
+	}
 }

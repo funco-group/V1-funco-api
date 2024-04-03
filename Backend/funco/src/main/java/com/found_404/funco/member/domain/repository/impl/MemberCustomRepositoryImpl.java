@@ -45,7 +45,8 @@ public class MemberCustomRepositoryImpl implements MemberCustomRepository {
 	public Long getFollowingCashByMemberId(Long memberId) {
 		return jpaQueryFactory.select(follow.investment.sum().coalesce(0L))
 			.from(follow)
-			.where(follow.follower.id.eq(memberId))
+			.where(follow.follower.id.eq(memberId),
+				follow.settled.isNull().or(follow.settled.isFalse()))
 			.fetchFirst();
 	}
 
@@ -53,7 +54,8 @@ public class MemberCustomRepositoryImpl implements MemberCustomRepository {
 	public Long getFollowerCashByMemberId(Long memberId) {
 		return jpaQueryFactory.select(follow.investment.sum().coalesce(0L))
 			.from(follow)
-			.where(follow.following.id.eq(memberId))
+			.where(follow.following.id.eq(memberId),
+				follow.settled.isNull().or(follow.settled.isFalse()))
 			.fetchFirst();
 	}
 
@@ -62,7 +64,8 @@ public class MemberCustomRepositoryImpl implements MemberCustomRepository {
 		return !jpaQueryFactory
 			.from(follow)
 			.where(follow.follower.id.eq(loginId),
-				follow.following.id.eq(memberId))
+				follow.following.id.eq(memberId),
+				follow.settled.isNull().or(follow.settled.isFalse()))
 			.fetch().isEmpty();
 	}
 

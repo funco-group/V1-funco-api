@@ -7,6 +7,7 @@ import lombok.Builder;
 @Builder
 public record QueryFollowingInfoResult(
 	Long followId,
+	Long followingId,
 	String nickname,
 	Long investment,
 	LocalDateTime followedAt,

@@ -17,8 +17,6 @@ import com.found_404.funco.member.domain.repository.MemberRepository;
 import com.found_404.funco.member.dto.MemberAssetInfo;
 import com.found_404.funco.member.dto.MemberInfo;
 import com.found_404.funco.member.dto.response.MemberResponse;
-import com.found_404.funco.member.exception.MemberErrorCode;
-import com.found_404.funco.member.exception.MemberException;
 import com.found_404.funco.rank.domain.type.RankType;
 import com.found_404.funco.rank.dto.response.RankResponse;
 import com.found_404.funco.trade.dto.HoldingCoinsDto;
@@ -60,16 +58,17 @@ public class MemberService {
 			0, -1);
 
 		AtomicInteger index = new AtomicInteger(0); // 인덱스를 저장할 AtomicInteger 생성
-		typedTuples.stream()
+		RankResponse result = typedTuples.stream()
 			.map(tuple -> (RankResponse)tuple.getValue()).filter(Objects::nonNull)
 			.filter(rankResponse -> {
 				index.incrementAndGet(); // 인덱스 증가
 				return Objects.equals(rankResponse.member().id(), memberId); // 조건 확인
 			})
 			.findFirst()
-			.orElseThrow(() -> new MemberException(MemberErrorCode.NOT_FOUND_MEMBER));
+			.orElseGet(null);
+		// .orElseThrow(() -> new MemberException(MemberErrorCode.NOT_FOUND_MEMBER));
 
-		return index.longValue();
+		return result == null ? null : index.longValue();
 	}
 
 	@Transactional

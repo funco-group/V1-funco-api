@@ -15,4 +15,6 @@ public interface MemberCustomRepository {
 	Long getFollowerCashByMemberId(Long memberId);
 
 	Boolean isFollowedByMemberId(Long loginId, Long memberId);
+
+	List<String> findRecentTradedCoinByMemberId(Long memberId);
 }

@@ -30,41 +30,12 @@ import lombok.RequiredArgsConstructor;
 public class MemberService {
 	private final MemberRepository memberRepository;
 	private final RedisTemplate<String, Object> rankZSetRedisTemplate;
-	private final RedisTemplate<String, String> recentTradedCoinRedisTemplate;
 
 	public MemberResponse readMember(Long loginMemberId, Long memberId) {
 		List<HoldingCoinsDto> holdingCoinsDto = memberRepository.findHoldingCoinsByMemberId(memberId); // 보유 코인 정보
 		MemberInfo memberInfo = memberRepository.findMemberInfoByMemberId(memberId);
 		ZSetOperations<String, Object> zSetOperations = rankZSetRedisTemplate.opsForZSet();
-
-		String key = memberId.toString();
-		String newTicker = "KRW-BTC";
-		recentTradedCoinRedisTemplate.opsForList().leftPush(key, newTicker);
-
-		List<String> tickers;
-		if (recentTradedCoinRedisTemplate.opsForList().size(key) > 3) {
-			String ticker = recentTradedCoinRedisTemplate.opsForList().rightPop(key);
-			System.out.println(
-				"--------------------------" + recentTradedCoinRedisTemplate.opsForList().range(key, 0, -1));
-			recentTradedCoinRedisTemplate.opsForList().trim(key, 0, 2);
-			System.out.println("0------------------------");
-
-			tickers = recentTradedCoinRedisTemplate.opsForList().range(key, 0, -1);
-			System.out.println(tickers);
-			if (tickers.contains(ticker)) {
-				tickers.remove(ticker);
-				// recentTradedCoinRedisTemplate.opsForList().rightPush(key, ticker);
-			}
-		} else {
-			tickers = recentTradedCoinRedisTemplate.opsForList().range(key, 0, -1);
-			if (tickers.contains(newTicker)) {
-				tickers.remove(newTicker);
-				tickers.add(newTicker);
-			}
-			// recentTradedCoinRedisTemplate.opsForList().leftPushAll(key, tickers);
-		}
-		tickers = recentTradedCoinRedisTemplate.opsForList().range(memberId.toString(), 0, -1);
-
+		
 		return MemberResponse.builder()
 			.memberId(memberId)
 			.nickname(memberInfo.nickname())
@@ -76,7 +47,7 @@ public class MemberService {
 				.cash(memberInfo.cash())
 				.coins(holdingCoinsDto)
 				.build())
-			.topCoins(tickers)
+			.topCoins(memberRepository.findRecentTradedCoinByMemberId(memberId))
 			.followerCash(memberRepository.getFollowingCashByMemberId(memberId))
 			.followingCash(memberRepository.getFollowerCashByMemberId(memberId))
 			.isFollow(memberRepository.isFollowedByMemberId(loginMemberId, memberId))

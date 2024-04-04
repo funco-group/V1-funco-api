@@ -4,11 +4,10 @@ import static com.found_404.funco.rank.domain.type.RankType.*;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import com.found_404.funco.member.exception.MemberErrorCode;
-import com.found_404.funco.member.exception.MemberException;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Service;
@@ -19,6 +18,8 @@ import com.found_404.funco.member.domain.repository.MemberRepository;
 import com.found_404.funco.member.dto.MemberAssetInfo;
 import com.found_404.funco.member.dto.MemberInfo;
 import com.found_404.funco.member.dto.response.MemberResponse;
+import com.found_404.funco.member.exception.MemberErrorCode;
+import com.found_404.funco.member.exception.MemberException;
 import com.found_404.funco.rank.domain.type.RankType;
 import com.found_404.funco.rank.dto.response.RankResponse;
 import com.found_404.funco.trade.dto.HoldingCoinsDto;
@@ -60,17 +61,17 @@ public class MemberService {
 			0, -1);
 
 		AtomicInteger index = new AtomicInteger(0); // 인덱스를 저장할 AtomicInteger 생성
-		RankResponse result = typedTuples.stream()
-			.map(tuple -> (RankResponse)tuple.getValue()).filter(Objects::nonNull)
+		Optional<Long> result = typedTuples.stream()
+			.map(tuple -> (RankResponse)tuple.getValue())
+			.filter(Objects::nonNull)
 			.filter(rankResponse -> {
 				index.incrementAndGet(); // 인덱스 증가
 				return Objects.equals(rankResponse.member().id(), memberId); // 조건 확인
 			})
 			.findFirst()
-			.orElseGet(null);
-		//.orElseThrow(() -> new MemberException(MemberErrorCode.NOT_FOUND_MEMBER));
+			.map(__ -> index.longValue());
 
-		return result == null ? null : index.longValue();
+		return result.orElse(null);
 	}
 
 	@Transactional

@@ -1,5 +1,6 @@
 package com.found_404.funco.trade.domain.repository;
 
+import com.found_404.funco.member.domain.Member;
 import com.found_404.funco.trade.domain.OpenTrade;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -11,4 +12,6 @@ public interface OpenTradeRepository extends JpaRepository<OpenTrade, Long>, Que
 
     @EntityGraph(attributePaths = {"member"})
     List<OpenTrade> findAllByIdIn(Collection<Long> id);
+
+    List<OpenTrade> findAllByMember(Member member);
 }

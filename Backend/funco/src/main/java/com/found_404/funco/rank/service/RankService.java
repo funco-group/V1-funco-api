@@ -10,6 +10,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.found_404.funco.member.domain.Member;
+import com.found_404.funco.member.domain.repository.MemberRepository;
+import com.found_404.funco.member.exception.MemberErrorCode;
+import com.found_404.funco.member.exception.MemberException;
+import com.found_404.funco.trade.domain.OpenTrade;
+import com.found_404.funco.trade.domain.repository.OpenTradeRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -40,6 +46,9 @@ public class RankService {
 	private final RedisTemplate<String, Object> rankZSetRedisTemplate;
 	private final RankCustomRepository rankCustomRepository;
 	private final CryptoPrice cryptoPrice;
+	private final OpenTradeRepository openTradeRepository;
+	private final MemberRepository memberRepository;
+
 	private final static long INIT_CASH = 10_000_000;
 	private final static long PERCENT = 100;
 
@@ -91,8 +100,15 @@ public class RankService {
 
 		// 랭킹 업데이트
 		followingCoinInfos.forEach(info -> {
+			Member member = memberRepository.findById(info.memberInfo().id())
+					.orElseThrow(() -> new MemberException(MemberErrorCode.NOT_FOUND_MEMBER));
+			List<OpenTrade> openTradeList = openTradeRepository.findAllByMember(member);
+			long openOrderCash = openTradeList.stream().map(OpenTrade::getOrderCash)
+                    .reduce(0L, Long::sum);
+			// 미체결 금액
+
 			long totalAsset = info.cash() + (holdingCoins.getOrDefault(info.memberInfo().id(), 0L)) +
-				rankCustomRepository.getInvestmentByMemberId(info.memberInfo().id());
+					rankCustomRepository.getInvestmentByMemberId(info.memberInfo().id()) + openOrderCash;
 
 			updateRankingInRedis(RankResponse.builder()
 				.member(info.memberInfo())

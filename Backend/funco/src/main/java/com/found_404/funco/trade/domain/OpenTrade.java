@@ -1,5 +1,8 @@
 package com.found_404.funco.trade.domain;
 
+import static com.found_404.funco.global.util.DecimalCalculator.*;
+import static com.found_404.funco.global.util.ScaleType.*;
+
 import com.found_404.funco.global.entity.BaseEntity;
 import com.found_404.funco.member.domain.Member;
 import com.found_404.funco.trade.domain.type.TradeType;
@@ -50,15 +53,15 @@ public class OpenTrade extends BaseEntity {
         this.buyPrice = buyPrice;
     }
 
-    public static Trade toTrade(OpenTrade openTrade) {
+    public static Trade toTrade(OpenTrade openTrade, Long tradePrice) {
         return Trade.builder()
-                .ticker(openTrade.getTicker())
-                .volume(openTrade.getVolume())
-                .price(openTrade.getPrice())
-                .orderCash(openTrade.getOrderCash())
-                .tradeType(openTrade.getTradeType())
-                .member(openTrade.getMember())
-                .build();
+            .ticker(openTrade.getTicker())
+            .volume(openTrade.getVolume())
+            .price(tradePrice) // 시장가
+            .orderCash((long)multiple(openTrade.volume, tradePrice, CASH_SCALE)) // 시장가로 체결
+            .tradeType(openTrade.getTradeType())
+            .member(openTrade.getMember())
+            .build();
     }
 
 }

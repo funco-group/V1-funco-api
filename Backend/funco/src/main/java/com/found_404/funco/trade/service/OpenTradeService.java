@@ -33,7 +33,7 @@ public class OpenTradeService {
     private final MemberRepository memberRepository;
 
     @Async
-    public void processTrade(List<Long> concludingTradeIds, String ticker, boolean removeTicker) {
+    public void processTrade(List<Long> concludingTradeIds, Long tradePrice) {
 //        if (removeTicker) {
 //            cryptoPrice.removeTicker(ticker);
 //        } 나중에 최적화
@@ -43,18 +43,21 @@ public class OpenTradeService {
 
         // 체결 데이터로 전환
         List<Trade> trades = openTrades.stream()
-                .map(OpenTrade::toTrade)
-                .toList();
+            .map(openTrade -> OpenTrade.toTrade(openTrade, tradePrice))
+            .toList();
 
         // 체결 데이터 저장
         tradeRepository.saveAll(trades);
 
+        // 자산 업데이트
+        for (int i = 0; i < trades.size(); i++) {
+            processAsset(trades.get(i), Math.abs(openTrades.get(i).getOrderCash() - trades.get(i).getOrderCash()));
+        }
+
         // 미체결 데이터 삭제
         openTradeRepository.deleteAll(openTrades);
 
-        // 자산 업데이트
-        trades.forEach(this::processAsset);
-
+        // 알림
         for (Trade trade : trades) {
             notificationService.sendNotification(trade.getMember().getId(), trade.getTradeType().equals(TradeType.BUY) ? NotificationType.BUY : NotificationType.SELL
                     , getMessage(trade));
@@ -73,7 +76,7 @@ public class OpenTradeService {
         return message.toString();
     }
 
-    private void processAsset(Trade trade) {
+    private void processAsset(Trade trade, Long recoverCash) {
         if (trade.getTradeType().equals(TradeType.BUY)) { // BUY
             Optional<HoldingCoin> optionalHoldingCoin = holdingCoinRepository.findByMemberAndTicker(trade.getMember(), trade.getTicker());
             HoldingCoin holdingCoin;
@@ -94,6 +97,8 @@ public class OpenTradeService {
             trade.getMember().increaseCash(trade.getOrderCash());
             memberRepository.save(trade.getMember());
         }
+
+        trade.getMember().recoverCash(recoverCash); // 거래 금액 대비 차액 입금
     }
 
 }
